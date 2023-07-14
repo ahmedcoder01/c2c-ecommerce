@@ -1,0 +1,12 @@
+{"level":"info","message":"token undefined","service":"user-service"}
+{"level":"info","message":"token undefined","service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNDkxLCJleHAiOjE2ODkzNzA1OTF9.zSoDaTotQuZRxOGoEfk_uhQZKjfYHeKK-NVNlkedfis","service":"user-service"}
+{"level":"info","message":{"email":"exmaple@user.com","exp":1689370591,"iat":1689370491,"userId":"my_user"},"service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNDkxLCJleHAiOjE2ODkzNzA1OTF9.zSoDaTotQuZRxOGoEfk_uhQZKjfYHeKK-NVNlkedfis","service":"user-service"}
+{"level":"info","message":{"email":"exmaple@user.com","exp":1689370591,"iat":1689370491,"userId":"my_user"},"service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNDkxLCJleHAiOjE2ODkzNzA1OTF9.zSoDaTotQuZRxOGoEfk_uhQZKjfYHeKK-NVNlkedfis","service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNDkxLCJleHAiOjE2ODkzNzA1OTF9.zSoDaTotQuZRxOGoEfk_uhQZKjfYHeKK-NVNlkedfis","service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNjM2LCJleHAiOjE2ODkzNzA3MzZ9.2aDSysIO_OoxwQsw8KXG9aF_bImzbAur2X0wyna-Yq4","service":"user-service"}
+{"level":"info","message":{"email":"exmaple@user.com","exp":1689370736,"iat":1689370636,"userId":"my_user"},"service":"user-service"}
+{"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNjM2LCJleHAiOjE2ODkzNzA3MzZ9.2aDSysIO_OoxwQsw8KXG9aF_bImzbAur2X0wyna-Yq4","service":"user-service"}
+{"level":"info","message":"my_user","service":"user-service"}

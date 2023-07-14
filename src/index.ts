@@ -1,7 +1,13 @@
+/* eslint-disable import/first */
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 import express, { NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 // import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import routes from './routes/routes';
 import HttpException from './models/http-exception.model';
 import swaggerDocument from '../docs/swagger.json';
@@ -14,6 +20,8 @@ const app = express();
  */
 
 app.use(cors());
+
+app.use(cookieParser());
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
@@ -44,9 +52,13 @@ app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunc
     // @ts-ignore
   } else if (err && err.errorCode) {
     // @ts-ignore
-    res.status(err.errorCode).json(err.message);
+    res.status(500).json({
+      message: err.message,
+    });
   } else if (err) {
-    res.status(500).json(err.message);
+    res.status(500).json({
+      message: err.message,
+    });
   }
 });
 
