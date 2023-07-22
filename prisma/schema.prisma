@@ -1,1 +1,213 @@
+// C2C Ecommerce Application Prisma Schema
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String?
+  password      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  sellerProfile SellerProfile?
 
+  // shipping address relation
+  shippingAddressess ShippingAddress[]
+
+  //   cart relation
+  cart Cart?
+
+  // order relation
+  orders Order[]
+
+  // payment details relation
+  payments PaymentDetails[]
+
+  // review and rating relation
+  productReviews ProductReview[]
+}
+
+model SellerProfile {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+}
+
+model ShippingAddress {
+  id      Int     @id @default(autoincrement())
+  user    User    @relation(fields: [userId], references: [id])
+  userId  Int     @unique
+  name    String?
+  phone   String?
+  address String?
+
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // order relation
+  orders Order[]
+}
+
+// Products with variants and categories
+model ProductCategory {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  products    Product[]
+  variations  Variation[]
+
+  subCategories    ProductCategory[] @relation("SubCategory")
+  parentCategory   ProductCategory?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
+  parentCategoryId Int?
+}
+
+//* entity attribute value model
+model Product {
+  id                Int              @id @default(autoincrement())
+  name              String
+  description       String?
+  defaultImage      String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  productVariants   ProductVariant[]
+  productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
+  productCategoryId Int
+  sellerProfile     SellerProfile    @relation(fields: [sellerProfileId], references: [id])
+  sellerProfileId   Int
+
+
+  productReviews ProductReview[]
+
+}
+
+model ProductVariant {
+  id                  Int               @id @default(autoincrement())
+  name                String
+  description         String?
+  price               Float
+  quantity            Int
+  productVariantImage String?
+  product             Product           @relation(fields: [productId], references: [id])
+  productId           Int
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  // many to many relation with variation options
+  variationOptions    VariationOption[]
+
+  // cart items relation
+  cartItems CartItem[]
+
+  // order items relation
+  orderItems OrderItem[]
+}
+
+// Variations and options
+model Variation {
+  id                Int               @id @default(autoincrement())
+  name              String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  productCategory   ProductCategory   @relation(fields: [productCategoryId], references: [id])
+  productCategoryId Int
+  variationOptions  VariationOption[]
+}
+
+model VariationOption {
+  id              Int              @id @default(autoincrement())
+  value           String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  variation       Variation        @relation(fields: [variationId], references: [id])
+  variationId     Int
+  productVariants ProductVariant[]
+
+}
+
+// Cart and orders
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user      User       @relation(fields: [userId], references: [id])
+  userId    Int        @unique
+  cartItems CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id               Int            @id @default(autoincrement())
+  cart             Cart           @relation(fields: [cartId], references: [id])
+  cartId           Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId Int
+  quantity         Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// Orders
+
+model Order {
+  id                Int             @id @default(autoincrement())
+  user              User            @relation(fields: [userId], references: [id])
+  userId            Int             @unique
+  orderItems        OrderItem[]
+  shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId Int
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model OrderItem {
+  id               Int            @id @default(autoincrement())
+  order            Order          @relation(fields: [orderId], references: [id])
+  orderId          Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId Int
+  quantity         Int
+  price            Float
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+enum PaymentProcessorProvider {
+  STRIPE
+  PAYPAL
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model PaymentDetails {
+  id                Int                      @id @default(autoincrement())
+  user              User                     @relation(fields: [userId], references: [id])
+  userId            Int                      @unique
+  paymentMethod     String?
+  processorProvider PaymentProcessorProvider @default(STRIPE)
+  status            PaymentStatus            @default(PENDING)
+  paymentId         String
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+}
+
+// Review and rating
+
+model ProductReview {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  rating    Int
+  review    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
