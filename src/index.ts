@@ -9,9 +9,12 @@ import swaggerUi from 'swagger-ui-express';
 // import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import routes from './routes/routes';
-import HttpException from './models/http-exception.model';
+import HttpException from './utils/http-exception';
 import swaggerDocument from '../docs/swagger.json';
 import { version } from '../package.json';
+import logRequest from './middlewares/logger.middleware';
+import prisma from '../prisma/prisma-client';
+import logger from './logger';
 
 const app = express();
 
@@ -22,6 +25,8 @@ const app = express();
 app.use(cors());
 
 app.use(cookieParser());
+app.use(express.json());
+app.use(logRequest)
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
@@ -56,6 +61,8 @@ app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunc
       message: err.message,
     });
   } else if (err) {
+    // if not code provided, it's a server error, so we log it and ignore message
+    logger.error(`INTERNAL ERROR: ${err.message}`)
     res.status(500).json({
       message: err.message,
     });
@@ -67,6 +74,11 @@ app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunc
  */
 
 const PORT = process.env.PORT || 3000;
+(async () => {
+  await prisma.$connect();
+  logger.info('Connected to database');
+
 app.listen(PORT, () => {
-  console.info(`server up on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
+})()

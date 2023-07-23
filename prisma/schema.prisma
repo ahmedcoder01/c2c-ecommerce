@@ -39,6 +39,7 @@ model SellerProfile {
   userId    Int      @unique
   name      String?
   phone     String?
+  isActivated Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -1,9 +1,11 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
+import { User, SellerProfile } from '@prisma/client';
 import config from '../config';
 import { ExpressHandler } from '../types';
 import { authService } from '../services';
-import HttpException from '../models/http-exception.model';
+import HttpException from '../utils/http-exception';
+import { UpdatedJwtPayload } from '../types/jwt.type';
 
 interface SignupBody {
   email: string;
@@ -16,14 +18,25 @@ interface LoginBody {
   password: string;
 }
 
-export const signup: ExpressHandler<SignupBody, {}> = async (req, res) => {
+type AuthResponse = {
+  user: Pick<User, "email" | "id" | "name"> & {
+    sellerProfile: SellerProfile
+}
+};
+
+export const signup: ExpressHandler<SignupBody, AuthResponse> = async (req, res) => {
   await authService.checkEmailUniqueness(req.body.email);
 
 
-  await authService.createUser(req.body);
+  const user = await authService.createUser(req.body);
 
-  const accessToken = authService.signAccessToken(req.body.email, '15min');
-  const refreshToken = authService.signRefreshToken(req.body.email, '7d');
+  const jwtPayload = {
+    email: user.email,
+    userId: user.id
+  }
+
+  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
   res
     .cookie('access-token', accessToken, {
@@ -38,13 +51,21 @@ export const signup: ExpressHandler<SignupBody, {}> = async (req, res) => {
 
   return res.status(httpStatus.CREATED).json({
     message: 'User created successfully',
+    user: {
+      ...user,
+      sellerProfile: user.sellerProfile!
+    }
   });
 }
 
-export const login: ExpressHandler<LoginBody, {}> = async (req, res) => {
+export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) => {
   const user = await authService.login(req.body);
-  const accessToken = authService.signAccessToken(user.email, '15min');
-  const refreshToken = authService.signRefreshToken(user.email, '7d');
+  const jwtPayload = {
+    email: user.email,
+    userId: user.id
+  }
+ const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const  refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
   res
     .cookie('access-token', accessToken, {
@@ -55,20 +76,36 @@ export const login: ExpressHandler<LoginBody, {}> = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     })
-    .sendStatus(httpStatus.OK);
+    .sendStatus(httpStatus.OK).json({
+     user: {
+      ...user,
+      sellerProfile: user.sellerProfile!
+     }
+    })
 }
 
 export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
   const token = req.cookies['refresh-token'];
+  console.info(token)
 
 
+  let data;
   try {
-    const data = jwt.verify(token, config.variables.jwtRefreshSecret)
-
+       data = jwt.verify(token, config.variables.jwtRefreshSecret) as UpdatedJwtPayload;
     
+    } catch (err) {
+      console.info(err)
+      throw new HttpException(httpStatus.UNAUTHORIZED, 'Invalid refresh token');
+    }
 
-    const accessToken = authService.signAccessToken(data, '15min');
-    const refreshToken = authService.signRefreshToken(data, '7d');
+    const jwtPayload = {
+      email: data.email,
+      userId: data.userId
+    }
+
+
+    const accessToken = authService.signAccessToken(jwtPayload, '1h');
+    const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
     res
       .cookie('access-token', accessToken, {
@@ -82,7 +119,36 @@ export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
       .sendStatus(httpStatus.OK);
 
     return res.sendStatus(200);
-  } catch {
-    throw new HttpException(httpStatus.UNAUTHORIZED, 'Invalid refresh token');
-  }
+  
 };
+
+export const logout: ExpressHandler<{}, {}> = async (req, res) => {
+  res
+    .clearCookie('access-token')
+    .clearCookie('refresh-token')
+    .sendStatus(httpStatus.OK);
+}
+
+
+
+export const me: ExpressHandler<{}, AuthResponse> = async (req, res) => {
+  const accessToken = req.cookies['access-token'];
+  
+  let data;
+   
+  try {
+    data = jwt.verify(accessToken, config.variables.jwtAccessSecret) as UpdatedJwtPayload
+  } catch {
+    throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+
+  const user = await authService.getUserInfo(data.email);
+
+  return res.status(httpStatus.OK).json({
+    user: {
+      ...user,
+      sellerProfile: user.sellerProfile!
+    }
+  });
+}

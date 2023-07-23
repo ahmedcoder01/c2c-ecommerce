@@ -9,7 +9,7 @@ export type ExpressHandlerOptional<Req, Res> = RequestHandler<
 >;
 export type ExpressHandler<Req, Res> = RequestHandler<
   Record<string, string>,
-  Partial<WithError<Res>>,
+  WithError<Res>,
   Req
 >;
 

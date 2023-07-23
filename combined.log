@@ -10,3 +10,148 @@
 {"level":"info","message":{"email":"exmaple@user.com","exp":1689370736,"iat":1689370636,"userId":"my_user"},"service":"user-service"}
 {"level":"info","message":"token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJteV91c2VyIiwiZW1haWwiOiJleG1hcGxlQHVzZXIuY29tIiwiaWF0IjoxNjg5MzcwNjM2LCJleHAiOjE2ODkzNzA3MzZ9.2aDSysIO_OoxwQsw8KXG9aF_bImzbAur2X0wyna-Yq4","service":"user-service"}
 {"level":"info","message":"my_user","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"hello@gmail.com\",\"password\":\"3242\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"hello@gmail.com\",\"password\":\"3242\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"hello@gmail.com\",\"password\":\"3242\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signups - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signups\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"salt-000000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"Dev\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Unexpected token } in JSON at position 75","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"hello\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"warn","message":"$10b$50$Qj8hFgJ3H6jQ8OR43Ir2Mu","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Invalid salt. Salt must be in the form of: $Vers$log2(NumRounds)$saltvalue","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"hello\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/signup - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"hello\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"undefined\",\"refresh-token\":\"undefined\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"undefined\",\"refresh-token\":\"undefined\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/login - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/login\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"undefined\",\"refresh-token\":\"undefined\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Method: POST - URL: /v1/auth/refresh - Body: {\"method\":\"POST\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwMTMzMzcwfQ.t1nCwrDMM44vgrxtOMC7jqlLRrgMnXyUbAHkTwcUFZg\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwNzM0NTcwfQ.NDkrvYfonJ11it21BbDCSx69vbCoQQjlibClGoIMN2I\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwMTMzMzcwfQ.t1nCwrDMM44vgrxtOMC7jqlLRrgMnXyUbAHkTwcUFZg\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwNzM0NTcwfQ.NDkrvYfonJ11it21BbDCSx69vbCoQQjlibClGoIMN2I\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwMTMzMzcwfQ.t1nCwrDMM44vgrxtOMC7jqlLRrgMnXyUbAHkTwcUFZg\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwNzM0NTcwfQ.NDkrvYfonJ11it21BbDCSx69vbCoQQjlibClGoIMN2I\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwMTMzMzcwfQ.t1nCwrDMM44vgrxtOMC7jqlLRrgMnXyUbAHkTwcUFZg\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwNzM0NTcwfQ.NDkrvYfonJ11it21BbDCSx69vbCoQQjlibClGoIMN2I\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Bad \"options.expiresIn\" option the payload already has an \"exp\" property.","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwMTMzMzcwfQ.t1nCwrDMM44vgrxtOMC7jqlLRrgMnXyUbAHkTwcUFZg\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEyOTc3MCwiZXhwIjoxNjkwNzM0NTcwfQ.NDkrvYfonJ11it21BbDCSx69vbCoQQjlibClGoIMN2I\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDIyNiwiZXhwIjoxNjkwMTMzODI2fQ.tYnfU7VHxQDe0xEbCnwRwgS21xYUEmmtXcIqY6SS3hM\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDIyNiwiZXhwIjoxNjkwNzM1MDI2fQ.bnCYYkaa0sBCkIZ0s1CpNbA-NOB9w6mEqnTslGz81Ug\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0MSwiZXhwIjoxNjkwMTMzODQxfQ.aLYcIuZ_DShBlf7YEjm0yK_vn5q9wdFiNMGmhXQ3OJ0\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0MSwiZXhwIjoxNjkwNzM1MDQxfQ.lKdtSgClwpzWGQORaF4Pi8y8Yq619deWIo7u_GiwTMg\"}}. IP: ::1","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/me - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/me\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/me - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/me\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/logout - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/logout\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/logout - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/logout\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/logout - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/logout\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Connected to database","service":"user-service"}
+{"level":"info","message":"Server is running on port 3000","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/logout - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/logout\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{\"access-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwMTMzODQ2fQ.93c6SKAfajX1vBMtUZcfecZ6iqCCe-1eAPLfZEyHHW4\",\"refresh-token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGVAZXhhbXBsZS5jb20iLCJ1c2VySWQiOjEsImlhdCI6MTY5MDEzMDI0NiwiZXhwIjoxNjkwNzM1MDQ2fQ.jCxW9ebC69nJBrvrXxvqq5zsWxsEgsFb6-4iwu9Cp6k\"}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/me - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/me\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/refresh - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/refresh\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}
+{"level":"info","message":"Method: GET - URL: /v1/auth/signup - Body: {\"method\":\"GET\",\"originalUrl\":\"/v1/auth/signup\",\"body\":{\"email\":\"example@example.com\",\"password\":\"009900\",\"name\":\"hello\"},\"query\":{},\"params\":{},\"cookies\":{}}. IP: ::1","service":"user-service"}

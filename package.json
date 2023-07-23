@@ -1,8 +1,8 @@
 {
   "name": "c2c-ecommerce",
   "version": "1.0.0",
-  "description": "Node.js, Express.js & Prisma RealWorld official app",
-  "main": "index.js",
+  "description": "E-Commerce API",
+  "main": "src/ndex.js",
   "scripts": {
     "postinstall": "tsc",
     "test": "jest -i",

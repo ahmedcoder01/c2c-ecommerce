@@ -3,7 +3,7 @@ import Joi from 'joi';
 // eslint-disable-next-line import/prefer-default-export
 export const refresh = {
   cookies: Joi.object({
-    'refresh-token': Joi.string().message("Unauthorized"),
+    'refresh-token': Joi.string().required(),
   }),
 };
 
@@ -21,3 +21,10 @@ export const login = {
     password: Joi.string().required(),
   }),
 };
+
+export const me = {
+  cookies: Joi.object({
+    'access-token': Joi.string().required(),
+  }),
+  
+}

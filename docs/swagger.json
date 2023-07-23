@@ -40,7 +40,7 @@
     "LoginUserRequest": {
       "type": "object",
       "properties": {
-        "user": {
+        "auth": {
           "$ref": "#/definitions/LoginUser"
         }
       },
@@ -49,7 +49,7 @@
     "NewUser": {
       "type": "object",
       "properties": {
-        "username": {
+        "name": {
           "type": "string"
         },
         "email": {
@@ -60,12 +60,12 @@
           "format": "password"
         }
       },
-      "required": ["username", "email", "password"]
+      "required": ["name", "email", "password"]
     },
     "NewUserRequest": {
       "type": "object",
       "properties": {
-        "user": {
+        "auth": {
           "$ref": "#/definitions/NewUser"
         }
       },
@@ -75,9 +75,6 @@
       "type": "object",
       "properties": {
         "email": {
-          "type": "string"
-        },
-        "token": {
           "type": "string"
         },
         "username": {

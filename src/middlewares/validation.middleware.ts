@@ -2,7 +2,7 @@ import { NextFunction } from 'express';
 import Joi, { ObjectSchema, Schema } from 'joi';
 import httpStatus from 'http-status';
 import pick from '../utils/pick';
-import HttpException from '../models/http-exception.model';
+import HttpException from '../utils/http-exception';
 
 type SchemaObject = {
   body?: ObjectSchema<any> | Schema;

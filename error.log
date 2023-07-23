@@ -1,0 +1,14 @@
+{"level":"error","message":"INTERNAL ERROR: Unexpected token } in JSON at position 75","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Invalid salt. Salt must be in the form of: $Vers$log2(NumRounds)$saltvalue","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: invalid expiresIn option for string payload","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Bad \"options.expiresIn\" option the payload already has an \"exp\" property.","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
+{"level":"error","message":"INTERNAL ERROR: Cannot set headers after they are sent to the client","service":"user-service"}
