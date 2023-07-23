@@ -1,4 +1,13 @@
 // C2C Ecommerce Application Prisma Schema
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
   id            Int            @id @default(autoincrement())
   email         String         @unique
@@ -39,7 +48,7 @@ model SellerProfile {
 model ShippingAddress {
   id      Int     @id @default(autoincrement())
   user    User    @relation(fields: [userId], references: [id])
-  userId  Int     @unique
+  userId  Int     
   name    String?
   phone   String?
   address String?
@@ -155,7 +164,7 @@ model CartItem {
 model Order {
   id                Int             @id @default(autoincrement())
   user              User            @relation(fields: [userId], references: [id])
-  userId            Int             @unique
+  userId            Int             
   orderItems        OrderItem[]
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
   shippingAddressId Int
@@ -189,7 +198,7 @@ enum PaymentStatus {
 model PaymentDetails {
   id                Int                      @id @default(autoincrement())
   user              User                     @relation(fields: [userId], references: [id])
-  userId            Int                      @unique
+  userId            Int                      
   paymentMethod     String?
   processorProvider PaymentProcessorProvider @default(STRIPE)
   status            PaymentStatus            @default(PENDING)
@@ -203,7 +212,7 @@ model PaymentDetails {
 model ProductReview {
   id        Int      @id @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    Int      
   product   Product  @relation(fields: [productId], references: [id])
   productId Int
   rating    Int

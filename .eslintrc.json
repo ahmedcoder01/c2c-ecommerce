@@ -22,9 +22,13 @@
         "ts": "never"
       }
     ],
-    "no-underscore-dangle": ["error", { "allow": ["_count"] }],
+    "no-underscore-dangle": ["warn", { "allow": ["_count"] }],
+    "no-unused-vars": "off",
     "no-console": ["error", { "allow": ["info"] }],
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": ["tests/prisma-mock.ts"] }]
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": ["tests/prisma-mock.ts"] }],
+    "import/prefer-default-export": "off",
+    "arrow-body-style": "off"
+    
   },
   "settings": {
     "import/resolver": {
