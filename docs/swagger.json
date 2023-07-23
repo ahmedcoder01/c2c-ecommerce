@@ -4,6 +4,7 @@
     "description": "E-Commerce API",
     "version": "1.0.0",
     "title": "E-Commerce API",
+    "basePath": "/v1",
 
     "license": {
       "name": "MIT License",
@@ -11,7 +12,7 @@
     }
   },
   "basePath": "/v1",
-  "schemes": ["https", "http"],
+  "schemes": [ "http"],
   "produces": ["application/json"],
   "consumes": ["application/json"],
   "securityDefinitions": {
@@ -22,7 +23,137 @@
       "in": "header"
     }
   },
-  "paths": {},
+  "paths": {
+ 
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login a user",
+        "description": "Login a user",
+        "operationId": "loginUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "description": "User object that needs to be logged in",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/LoginUserRequest"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "401": {
+            "description": "Invalid name/password supplied",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Create a new user",
+        "description": "Create a new user",
+        "operationId": "createUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+       
+        "parameters": [{
+          "in": "body",
+          "name": "body",
+          "description": "User object that needs to be created",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/NewUserRequest"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "409": {
+            "description": "Email already exists"
+          }
+        }
+      }
+    },
+
+    "/auth/refresh": {
+      "get": {
+          "tags": [
+              "Auth"
+          ],
+          "summary": "Refresh token",
+          "description": "Refresh token",
+
+          "operationId": "refreshToken",
+          "produces": [
+              "text/plain"
+          ],
+
+          "responses": {
+              "200": {
+                  "description": "Successful operation",
+                  "schema": {
+                      "type": "string"
+                  }
+              },
+              "401": {
+                  "description": "Invalid token supplied",
+                  "schema": {
+                      "$ref": "#/definitions/GenericErrorModel"
+                  }
+
+              }
+          }
+      }
+    },
+
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get current user",
+        "description": "Get current user",
+        "operationId": "getCurrentUser",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "404": {
+            "description": "User not logged in",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          },
+          "401": {
+            "description": "Invalid token supplied",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    }
+    
+
+
+
+  },
   "definitions": {
     "LoginUser": {
       "type": "object",
@@ -39,11 +170,8 @@
     },
     "LoginUserRequest": {
       "type": "object",
-      "properties": {
-        "auth": {
-          "$ref": "#/definitions/LoginUser"
-        }
-      },
+      
+      "$ref": "#/definitions/LoginUser",
       "required": ["user"]
     },
     "NewUser": {
@@ -64,11 +192,7 @@
     },
     "NewUserRequest": {
       "type": "object",
-      "properties": {
-        "auth": {
-          "$ref": "#/definitions/NewUser"
-        }
-      },
+      "$ref": "#/definitions/NewUser",
       "required": ["user"]
     },
     "User": {
@@ -77,17 +201,18 @@
         "email": {
           "type": "string"
         },
-        "username": {
+        "name": {
           "type": "string"
         },
-        "bio": {
-          "type": "string"
+        "id": {
+          "type": "integer",
+          "format": "int64"
         },
-        "image": {
-          "type": "string"
+        "sellerProfile": {
+          "$ref": "#/definitions/SellerProfile"
         }
       },
-      "required": ["email", "token", "username", "bio", "image"]
+      "required": ["email", "token", "name", "image"]
     },
     "UserResponse": {
       "type": "object",
@@ -102,20 +227,49 @@
     "GenericErrorModel": {
       "type": "object",
       "properties": {
-        "errors": {
-          "type": "object",
-          "properties": {
-            "body": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "required": ["body"]
+        "code": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
         }
       },
       "required": ["errors"]
+    },
+    
+    "SellerProfile": {
+      "type": "object",
+      
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "userId": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "isActivated": {
+          "type": "boolean"
+        },
+        
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+      }
     }
-  }
 }

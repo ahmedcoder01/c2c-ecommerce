@@ -38,6 +38,7 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'API is running on /v1', version });
 });
 
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get('/api-docs', (req: Request, res: Response) => {
@@ -57,7 +58,10 @@ app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunc
     // @ts-ignore
   } else if (err && err.errorCode) {
     // @ts-ignore
-    res.status(500).json({
+    res.status(
+      // @ts-ignore
+      err.errorCode 
+    ).json({
       message: err.message,
     });
   } else if (err) {

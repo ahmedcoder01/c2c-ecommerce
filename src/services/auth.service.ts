@@ -1,5 +1,6 @@
 import bcrypt  from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import httpStatus from 'http-status';
 import prisma from "../../prisma/prisma-client";
 import HttpException from "../utils/http-exception";
 import config from '../config';
@@ -98,7 +99,9 @@ export const getUserInfo = async (email: string) => {
     }
   });
   if (!user) {
-    throw new HttpException(401, 'Invalid credentials');
+    throw new HttpException(
+      httpStatus.NOT_FOUND
+      , 'User not found');
   }
 
   return user;

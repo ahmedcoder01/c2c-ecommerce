@@ -76,7 +76,7 @@ export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) =
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     })
-    .sendStatus(httpStatus.OK).json({
+    .status(httpStatus.OK).json({
      user: {
       ...user,
       sellerProfile: user.sellerProfile!
@@ -86,7 +86,6 @@ export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) =
 
 export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
   const token = req.cookies['refresh-token'];
-  console.info(token)
 
 
   let data;
@@ -95,7 +94,7 @@ export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
     
     } catch (err) {
       console.info(err)
-      throw new HttpException(httpStatus.UNAUTHORIZED, 'Invalid refresh token');
+      throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
     }
 
     const jwtPayload = {
