@@ -19,21 +19,84 @@ interface LoginBody {
 }
 
 type AuthResponse = {
-  user: Pick<User, "email" | "id" | "name"> & {
-    sellerProfile: SellerProfile
-}
+  user: Pick<User, 'email' | 'id' | 'name'> & {
+    sellerProfile: SellerProfile;
+  };
 };
 
 export const signup: ExpressHandler<SignupBody, AuthResponse> = async (req, res) => {
   await authService.checkEmailUniqueness(req.body.email);
 
-
   const user = await authService.createUser(req.body);
 
   const jwtPayload = {
     email: user.email,
-    userId: user.id
+    userId: user.id,
+  };
+
+  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
+
+  res
+    .cookie('access-token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    })
+    .cookie('refresh-token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+  return res.status(httpStatus.CREATED).json({
+    message: 'User created successfully',
+    user: {
+      ...user,
+      sellerProfile: user.sellerProfile!,
+    },
+  });
+};
+
+export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) => {
+  const user = await authService.login(req.body);
+  const jwtPayload = {
+    email: user.email,
+    userId: user.id,
+  };
+  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
+
+  res
+    .cookie('access-token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    })
+    .cookie('refresh-token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    })
+    .status(httpStatus.OK)
+    .json({
+      user: {
+        ...user,
+        sellerProfile: user.sellerProfile!,
+      },
+    });
+};
+
+export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
+  const token = req.cookies['refresh-token'];
+
+  let data;
+  try {
+    data = jwt.verify(token, config.variables.jwtRefreshSecret) as UpdatedJwtPayload;
+  } catch (err) {
+    throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
+
+  const jwtPayload = {
+    email: data.email,
+    userId: data.userId,
+  };
 
   const accessToken = authService.signAccessToken(jwtPayload, '1h');
   const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
@@ -47,107 +110,32 @@ export const signup: ExpressHandler<SignupBody, AuthResponse> = async (req, res)
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
     })
+    .sendStatus(httpStatus.OK);
 
-
-  return res.status(httpStatus.CREATED).json({
-    message: 'User created successfully',
-    user: {
-      ...user,
-      sellerProfile: user.sellerProfile!
-    }
-  });
-}
-
-export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) => {
-  const user = await authService.login(req.body);
-  const jwtPayload = {
-    email: user.email,
-    userId: user.id
-  }
- const accessToken = authService.signAccessToken(jwtPayload, '1h');
-  const  refreshToken = authService.signRefreshToken(jwtPayload, '7d');
-
-  res
-    .cookie('access-token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-    })
-    .cookie('refresh-token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-    })
-    .status(httpStatus.OK).json({
-     user: {
-      ...user,
-      sellerProfile: user.sellerProfile!
-     }
-    })
-}
-
-export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
-  const token = req.cookies['refresh-token'];
-
-
-  let data;
-  try {
-       data = jwt.verify(token, config.variables.jwtRefreshSecret) as UpdatedJwtPayload;
-    
-    } catch (err) {
-      console.info(err)
-      throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
-    }
-
-    const jwtPayload = {
-      email: data.email,
-      userId: data.userId
-    }
-
-
-    const accessToken = authService.signAccessToken(jwtPayload, '1h');
-    const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
-
-    res
-      .cookie('access-token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-      })
-      .cookie('refresh-token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-      })
-      .sendStatus(httpStatus.OK);
-
-    return res.sendStatus(200);
-  
+  return res.sendStatus(200);
 };
 
 export const logout: ExpressHandler<{}, {}> = async (req, res) => {
-  res
-    .clearCookie('access-token')
-    .clearCookie('refresh-token')
-    .sendStatus(httpStatus.OK);
-}
-
-
+  res.clearCookie('access-token').clearCookie('refresh-token').sendStatus(httpStatus.OK);
+};
 
 export const me: ExpressHandler<{}, AuthResponse> = async (req, res) => {
   const accessToken = req.cookies['access-token'];
-  
+
   let data;
-   
+
   try {
-    data = jwt.verify(accessToken, config.variables.jwtAccessSecret) as UpdatedJwtPayload
+    data = jwt.verify(accessToken, config.variables.jwtAccessSecret) as UpdatedJwtPayload;
   } catch {
     throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
-
 
   const user = await authService.getUserInfo(data.email);
 
   return res.status(httpStatus.OK).json({
     user: {
       ...user,
-      sellerProfile: user.sellerProfile!
-    }
+      sellerProfile: user.sellerProfile!,
+    },
   });
-}
+};
