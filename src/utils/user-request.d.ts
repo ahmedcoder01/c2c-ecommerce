@@ -1,14 +1,8 @@
 declare namespace Express {
-  export interface Request {
+  export interface Response {
     locals: {
       userId?: string;
       email?: string;
     };
   }
 }
-
-
-
-
-
-

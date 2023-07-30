@@ -26,9 +26,6 @@ export const createUser = async ({
       email,
       password: hashedPassword,
       name,
-      sellerProfile: {
-        create: {},
-      },
       cart: {
         create: {},
       },

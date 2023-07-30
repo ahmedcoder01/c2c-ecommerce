@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { ExpressHandler } from '../types';
-import { verifyAccessToken } from '../utils/auth';
+import { verifyAccessToken } from '../services/auth.service';
 
 // eslint-disable-next-line import/prefer-default-export, consistent-return
 export const requireAuth: ExpressHandler<{}, {}> = async (req, res, next) => {
