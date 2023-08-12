@@ -3,5 +3,6 @@ export default {
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET!,
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
     passwordSaltRounds: process.env.PASSWORD_SALT_ROUNDS!,
+    env: process.env.NODE_ENV!,
   },
 };

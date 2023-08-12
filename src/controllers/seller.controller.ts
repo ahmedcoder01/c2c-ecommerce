@@ -2,7 +2,7 @@ import { SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
 import { ExpressHandler, ExpressHandlerWithParams } from '../types';
-import { sellerService } from '../services';
+import { authService, sellerService } from '../services';
 import HttpException from '../utils/http-exception';
 
 // Seller CRUD
@@ -17,27 +17,25 @@ export const postRegister: ExpressHandler<{ name: string; phone: string }, Selle
 };
 
 export const getProfile: ExpressHandler<unknown, SellerProfile> = async (req, res) => {
-  await sellerService.checkExists(res.locals.userId);
+  await sellerService.checkExistsOrThrow(res.locals.userId);
   const profile = await sellerService.getProfile(res.locals.userId);
 
   res.json(profile!);
 };
 
-export const getSellerById: ExpressHandlerWithParams<{ id: number }, {}, SellerProfile> = async (
-  req,
-  res,
-) => {
-  const profile = await sellerService.getById(req.params.id);
+export const getSellerById: ExpressHandlerWithParams<{ sellerId: number }, {}, SellerProfile> =
+  async (req, res) => {
+    const profile = await sellerService.getById(+req.params.sellerId);
 
-  if (!profile) {
-    throw new HttpException(httpStatus.NOT_FOUND, 'Seller not found');
-  }
+    if (!profile) {
+      throw new HttpException(httpStatus.NOT_FOUND, 'Seller not found');
+    }
 
-  res.json(profile);
-};
+    res.json(profile);
+  };
 
 export const deleteSeller: ExpressHandler<unknown, unknown> = async (req, res) => {
-  await sellerService.checkExists(res.locals.userId);
+  await sellerService.checkExistsOrThrow(res.locals.userId);
 
   await sellerService.deleteProfile(res.locals.userId);
 

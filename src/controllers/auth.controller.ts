@@ -109,8 +109,7 @@ export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
     .cookie('refresh-token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-    })
-    .sendStatus(httpStatus.OK);
+    });
 
   return res.sendStatus(200);
 };

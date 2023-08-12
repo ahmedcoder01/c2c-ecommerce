@@ -53,6 +53,17 @@ export const checkEmailUniqueness = async (email: string) => {
   }
 };
 
+export const checkUserExistsByIdOrThrow = async (uid: number) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: uid,
+    },
+  });
+  if (!user) {
+    throw new HttpException(404, 'User does not exist');
+  }
+};
+
 export const login = async ({ email, password }: { email: string; password: string }) => {
   const user = await prisma.user.findUnique({
     where: {

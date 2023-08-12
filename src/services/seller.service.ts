@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
 import HttpException from '../utils/http-exception';
 
-export const checkExists = async (uid: number) => {
+export const checkExistsOrThrow = async (uid: number) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
     where: {
       userId: uid,
@@ -13,6 +13,26 @@ export const checkExists = async (uid: number) => {
   if (!existingProfile) {
     throw new HttpException(httpStatus.NOT_FOUND, 'Seller profile does not exist');
   }
+};
+
+export const getOrThrow = async (uid: number) => {
+  const existingProfile = await prisma.sellerProfile.findUnique({
+    where: {
+      userId: uid,
+    },
+    select: {
+      id: true,
+      name: true,
+      phone: true,
+      isActivated: true,
+    },
+  });
+
+  if (!existingProfile) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Seller profile does not exist');
+  }
+
+  return existingProfile;
 };
 
 export const register = async (

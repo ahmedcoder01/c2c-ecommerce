@@ -12,7 +12,7 @@
     }
   },
   "basePath": "/v1",
-  "schemes": [ "http"],
+  "schemes": ["http"],
   "produces": ["application/json"],
   "consumes": ["application/json"],
   "securityDefinitions": {
@@ -24,7 +24,6 @@
     }
   },
   "paths": {
- 
     "/auth/login": {
       "post": {
         "tags": ["Auth"],
@@ -33,15 +32,17 @@
         "operationId": "loginUser",
         "consumes": ["application/json"],
         "produces": ["application/json"],
-        "parameters": [{
-          "in": "body",
-          "name": "body",
-          "description": "User object that needs to be logged in",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/LoginUserRequest"
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object that needs to be logged in",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginUserRequest"
+            }
           }
-        }],
+        ],
         "responses": {
           "200": {
             "description": "Successful login",
@@ -67,16 +68,18 @@
         "operationId": "createUser",
         "consumes": ["application/json"],
         "produces": ["application/json"],
-       
-        "parameters": [{
-          "in": "body",
-          "name": "body",
-          "description": "User object that needs to be created",
-          "required": true,
-          "schema": {
-            "$ref": "#/definitions/NewUserRequest"
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewUserRequest"
+            }
           }
-        }],
+        ],
         "responses": {
           "200": {
             "description": "Successful operation"
@@ -90,32 +93,27 @@
 
     "/auth/refresh": {
       "get": {
-          "tags": [
-              "Auth"
-          ],
-          "summary": "Refresh token",
-          "description": "Refresh token",
+        "tags": ["Auth"],
+        "summary": "Refresh token",
+        "description": "Refresh token",
 
-          "operationId": "refreshToken",
-          "produces": [
-              "text/plain"
-          ],
+        "operationId": "refreshToken",
+        "produces": ["text/plain"],
 
-          "responses": {
-              "200": {
-                  "description": "Successful operation",
-                  "schema": {
-                      "type": "string"
-                  }
-              },
-              "401": {
-                  "description": "Invalid token supplied",
-                  "schema": {
-                      "$ref": "#/definitions/GenericErrorModel"
-                  }
-
-              }
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Invalid token supplied",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
           }
+        }
       }
     },
 
@@ -148,11 +146,124 @@
           }
         }
       }
+    },
+
+    "/sellers/register": {
+      "post": {
+        "tags": ["Seller"],
+        "summary": "Register a seller",
+        "description": "Register a seller",
+        "operationId": "registerSeller",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Seller object that needs to be registered",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "409": {
+            "description": "Seller already exists"
+          }
+        }
+      }
+    },
+
+    "/sellers/profile": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller profile",
+        "description": "Get seller profile",
+        "operationId": "getSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/SellerProfile"
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Seller"],
+        "summary": "Delete seller profile",
+        "description": "Delete seller profile",
+        "operationId": "deleteSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/{sellerId}": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller profile by id",
+        "description": "Get seller profile by id",
+        "operationId": "getSellerProfileById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "description": "ID of seller to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/SellerProfile"
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
     }
-    
-
-
-
   },
   "definitions": {
     "LoginUser": {
@@ -170,7 +281,7 @@
     },
     "LoginUserRequest": {
       "type": "object",
-      
+
       "$ref": "#/definitions/LoginUser",
       "required": ["user"]
     },
@@ -236,10 +347,10 @@
       },
       "required": ["errors"]
     },
-    
+
     "SellerProfile": {
       "type": "object",
-      
+
       "properties": {
         "id": {
           "type": "integer"
@@ -262,7 +373,7 @@
         "isActivated": {
           "type": "boolean"
         },
-        
+
         "created_at": {
           "type": "string"
         },
@@ -270,6 +381,6 @@
           "type": "string"
         }
       }
-      }
     }
+  }
 }
