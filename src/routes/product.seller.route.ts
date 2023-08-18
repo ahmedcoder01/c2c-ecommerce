@@ -7,15 +7,24 @@ import { productController } from '../controllers';
 const sellerProductRouter = Router();
 
 sellerProductRouter.post(
-  '/create',
+  '/',
   validate(productValidations.createProduct),
   asyncHandler(productController.createProduct),
 );
 
 sellerProductRouter.post(
-  '/variants/create',
+  '/:productId/variants',
   validate(productValidations.createProductVariant),
   asyncHandler(productController.createProductVariant),
 );
+
+sellerProductRouter.get('/:productId', asyncHandler(productController.getProduct));
+
+sellerProductRouter.get(
+  '/:productId/variants/options',
+  asyncHandler(productController.getProductVariationOptions),
+);
+
+// get
 
 export default sellerProductRouter;

@@ -93,6 +93,14 @@ export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
     throw new HttpException(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
 
+  // check if user exists
+  try {
+    await authService.checkUserExistsByIdOrThrow(data.userId);
+  } catch (err) {
+    res.clearCookie('access-token').clearCookie('refresh-token');
+    throw err;
+  }
+
   const jwtPayload = {
     email: data.email,
     userId: data.userId,

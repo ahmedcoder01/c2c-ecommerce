@@ -65,7 +65,7 @@ model ShippingAddress {
 // Products with variants and categories
 model ProductCategory {
   id          Int         @id @default(autoincrement())
-  name        String     @unique
+  name        String      @unique
   description String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -118,7 +118,7 @@ model ProductVariant {
 // Variations and options
 model Variation {
   id                Int               @id @default(autoincrement())
-  name              String           @unique
+  name              String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   productCategory   ProductCategory   @relation(fields: [productCategoryId], references: [id])
@@ -131,10 +131,9 @@ model VariationOption {
   value           String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  variation       Variation        @relation(fields: [variationId], references: [id])
-  variationId     Int
+  variation       Variation        @relation(fields: [variationName], references: [name])
+  variationName   String
   productVariants ProductVariant[]
-
 }
 
 // Cart and orders

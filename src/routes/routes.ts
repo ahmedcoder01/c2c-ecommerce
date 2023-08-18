@@ -7,7 +7,7 @@ import sellerProductRouter from './product.seller.route';
 const api = Router();
 
 api.use('/auth', authRouter);
-api.use('/sellers', sellerRouter);
 api.use('/sellers/products', [requireAuth, requireSellerProfile], sellerProductRouter);
+api.use('/sellers', sellerRouter);
 
 export default Router().use('/v1', api);

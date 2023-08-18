@@ -12,8 +12,8 @@ CREATE TABLE "User" (
 CREATE TABLE "SellerProfile" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "userId" INTEGER NOT NULL,
-    "name" TEXT,
-    "phone" TEXT,
+    "name" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
     "isActivated" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -88,8 +88,8 @@ CREATE TABLE "VariationOption" (
     "value" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "variationId" INTEGER NOT NULL,
-    CONSTRAINT "VariationOption_variationId_fkey" FOREIGN KEY ("variationId") REFERENCES "Variation" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "variationName" TEXT NOT NULL,
+    CONSTRAINT "VariationOption_variationName_fkey" FOREIGN KEY ("variationName") REFERENCES "Variation" ("name") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -176,6 +176,12 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SellerProfile_userId_key" ON "SellerProfile"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductCategory_name_key" ON "ProductCategory"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Variation_name_key" ON "Variation"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");

@@ -12,6 +12,6 @@ export type ExpressHandler<Req, Res> = RequestHandler<Record<string, string>, Wi
 export type ExpressHandlerWithParams<Params, Req, Res> = RequestHandler<
   Params,
   WithError<Res>,
-  Partial<Req>,
+  Req,
   any
 >;

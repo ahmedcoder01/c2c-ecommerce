@@ -17,12 +17,12 @@ export interface ProductRequestVariant {
 export const createProduct = async (
   sellerId: number,
   {
-    defaultName,
+    name,
     description,
     defaultImage,
     category,
   }: {
-    defaultName: string;
+    name: string;
     description: string;
     defaultImage: string;
     category: string;
@@ -31,7 +31,7 @@ export const createProduct = async (
   const defaultImagePath = '/static/prod-img.png'; // temporary
   const product = await prisma.product.create({
     data: {
-      name: defaultName,
+      name,
       defaultImage: defaultImagePath,
       sellerProfile: {
         connect: {
@@ -48,10 +48,15 @@ export const createProduct = async (
   });
   return product;
 };
-export const getProduct = async (productId: number) => {
+export const getProduct = async (
+  productId: number,
+  options?: {
+    includeVariants?: boolean;
+  },
+) => {
   const product = await prisma.product.findFirst({
     where: {
-      id: productId,
+      id: +productId,
     },
     select: {
       id: true,
@@ -66,92 +71,135 @@ export const getProduct = async (productId: number) => {
           name: true,
         },
       },
+
+      ...(options?.includeVariants && {
+        productVariants: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            quantity: true,
+            productVariantImage: true,
+            variationOptions: {},
+          },
+        },
+      }),
     },
   });
   return product;
+};
+
+export const getProductVariants = async (productId: number) => {
+  const productVariants = await prisma.productVariant.findMany({
+    where: {
+      productId: +productId,
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      quantity: true,
+      productVariantImage: true,
+      variationOptions: {
+        select: {
+          id: true,
+          value: true,
+          variation: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return productVariants;
+};
+
+export const getProductVariationOptions = async (productId: number) => {
+  const productVariantOptions = await prisma.variationOption.findMany({
+    where: {
+      productVariants: {
+        some: {
+          productId: +productId,
+        },
+      },
+    },
+
+    select: {
+      variation: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      value: true,
+    },
+  });
+
+  // @ts-ignore
+  const groupedByKeys = productVariantOptions.reduce((acc, curr) => {
+    // @ts-ignore
+    acc[curr.variation.name] = [curr.value, ...(acc[curr.variation.name] || [])];
+    return acc;
+  }, {});
+
+  return groupedByKeys;
 };
 
 export const createProductVariant = async (
   productId: number,
   variantInfo: ProductRequestVariant,
 ) => {
-  //* createMany is not supported in SQLite
-
   const product = await getProduct(productId);
+  const productCategoryName = product?.productCategory.name;
 
-  // create or/and map variation options and variation to their ids
+  // Prepare variation keys and options
   const variantKeysAndValues = await Promise.all(
     variantInfo.variationOptions.map(async option => {
       const keyRecord = await prisma.variation.upsert({
-        where: {
-          name: option.name,
-        },
+        where: { name: option.name },
         update: {},
         create: {
           name: option.name,
-          productCategory: {
-            connect: {
-              name: product?.productCategory.name,
-            },
-          },
+          productCategory: { connect: { name: productCategoryName } },
         },
-        select: {
-          id: true,
-        },
+        select: { id: true },
       });
 
       let valueRecord = await prisma.variationOption.findFirst({
-        where: {
-          variation: {
-            id: keyRecord.id,
-          },
-          value: option.value,
-        },
-        select: {
-          id: true,
-        },
+        where: { variation: { id: keyRecord.id }, value: option.value },
+        select: { id: true },
       });
 
       if (!valueRecord) {
         valueRecord = await prisma.variationOption.create({
           data: {
-            variation: {
-              connect: {
-                id: keyRecord.id,
-              },
-            },
+            variation: { connect: { id: keyRecord.id } },
             value: option.value,
           },
-          select: {
-            id: true,
-          },
+          select: { id: true },
         });
       }
 
-      return {
-        key: keyRecord.id,
-        value: valueRecord.id,
-      };
+      return { key: keyRecord.id, value: valueRecord.id };
     }),
   );
 
+  // Create product variant and connect to variation options
+  // TODO: handle duplicate variant (determine if the variant is duplicate by checking if the variation options are the same)
   const variant = await prisma.productVariant.create({
     data: {
       name: variantInfo.name,
       price: variantInfo.price,
       quantity: variantInfo.stock,
       productVariantImage: variantInfo.image,
-      product: {
-        connect: {
-          id: productId,
-        },
-      },
+      product: { connect: { id: productId } },
       variationOptions: {
         connect: variantKeysAndValues.map(({ key, value }) => ({
           id: value,
-          variation: {
-            id: key,
-          },
+          variation: { id: key },
         })),
       },
     },
@@ -188,7 +236,7 @@ export const createCategory = async (name: string) => {
 export const checkProductExistsOrThrow = async (productId: number) => {
   const productExists = await prisma.product.findFirst({
     where: {
-      id: productId,
+      id: +productId,
     },
   });
   if (!productExists) {

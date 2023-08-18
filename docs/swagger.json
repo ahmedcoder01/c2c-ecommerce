@@ -263,6 +263,168 @@
           }
         }
       }
+    },
+
+    "/sellers/products": {
+      "post": {
+        "tags": ["Seller Products"],
+        "summary": "Create a new product",
+        "description": "Create a new product",
+        "operationId": "createProduct",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "defaultImage": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}": {
+      "get": {
+        "description": "Get product by id",
+        "summary": "Get product by id",
+        "tags": ["Seller Products"],
+        "operationId": "getProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product fetched"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+
+      }
+    },
+
+    "/sellers/products/{productId}/variants": {
+      "post": {
+        "tags": ["Seller Products"],
+        "description": "Create a new product variant",
+        "summary": "Create a new product variant",
+        "operationId": "createProductVariant",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product variant object that needs to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "image": {
+                  "type": "string"
+                },
+                "stock": {
+                  "type": "integer"
+                },
+
+                "variationOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/sellers/products/{productId}/variants/options": {
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Fetch all product variation options",
+        "summary": "Fetch all product variation options",
+        "operationId": "getProductVariantOptions",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          }
+          
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
     }
   },
   "definitions": {

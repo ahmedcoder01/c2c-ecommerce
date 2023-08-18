@@ -7,14 +7,14 @@ import { Product, ProductVariant, SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
 import { ExpressHandler, ExpressHandlerWithParams } from '../types';
-import { authService, productService, sellerService } from '../services';
-import HttpException from '../utils/http-exception';
+import { productService, sellerService } from '../services';
 import { ProductRequestVariant } from '../services/product.seller.service';
 import config from '../config';
+import HttpException from '../utils/http-exception';
 
 export const createProduct: ExpressHandler<
   {
-    defaultName: string;
+    name: string;
     description: string;
     defaultImage: string;
     category: string;
@@ -22,7 +22,7 @@ export const createProduct: ExpressHandler<
   any
 > = async (req, res) => {
   const { sellerId } = res.locals;
-  const { defaultName, description, defaultImage, category } = req.body;
+  const { name, description, defaultImage, category } = req.body;
 
   try {
     await productService.checkCategoryExistsOrThrow(category);
@@ -42,23 +42,24 @@ export const createProduct: ExpressHandler<
   const product = await productService.createProduct(sellerId, {
     category,
     defaultImage: defaultImagePath,
-    defaultName,
+    name,
     description,
   });
 
-  res.status(httpStatus.CREATED).json(product);
+  res.status(httpStatus.CREATED).json({
+    product,
+  });
 };
 
-export const createProductVariant: ExpressHandler<
-  {
-    variant: ProductRequestVariant;
-    productId: number;
-  },
+export const createProductVariant: ExpressHandlerWithParams<
+  { productId: number },
+  ProductRequestVariant,
   {
     productVariant: ProductVariant;
   }
 > = async (req, res) => {
-  const { variant, productId } = req.body;
+  const variant = req.body;
+  const { productId } = req.params;
 
   await productService.checkProductExistsOrThrow(productId);
 
@@ -66,5 +67,45 @@ export const createProductVariant: ExpressHandler<
 
   res.status(httpStatus.CREATED).json({
     productVariant,
+  });
+};
+
+export const getProduct: ExpressHandlerWithParams<
+  { productId: number },
+  any,
+  {
+    product: Product & {
+      productVariants: ProductVariant[];
+    };
+  }
+> = async (req, res) => {
+  const { productId } = req.params;
+
+  const product = await productService.getProduct(productId, {
+    includeVariants: true,
+  });
+
+  if (!product) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Product not found');
+  }
+
+  res.status(httpStatus.OK).json({
+    product: product as any,
+  });
+};
+
+export const getProductVariationOptions: ExpressHandlerWithParams<
+  { productId: number },
+  any,
+  {
+    options: any;
+  }
+> = async (req, res) => {
+  const { productId } = req.params;
+
+  const options = await productService.getProductVariationOptions(productId);
+
+  res.status(httpStatus.OK).json({
+    options,
   });
 };
