@@ -274,50 +274,50 @@
         "consumes": ["multipart/form-data"],
         "produces": ["application/json"],
 
-      
-
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "price": {
-                    "type": "number"
-                  },
-                  "image": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "stock": {
-                    "type": "integer"
-                  },
-
-                  "variationOptions": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "value": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "name",
+            "description": "Product name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "description",
+            "description": "Product description",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "category",
+            "description": "Product category",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "image",
+            "description": "Product image",
+            "required": true,
+            "type": "file"
           }
-        },
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "get": {
+        "tags": ["Seller Products"],
+        "summary": "Get all products",
+        "description": "Get all products",
+        "operationId": "getSellerProducts",
+        "produces": ["application/json"],
 
         "responses": {
           "200": {

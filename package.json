@@ -38,7 +38,8 @@
     "lodash": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "sqlite3": "^5.1.6",
-    "swagger-ui-express": "^5.0.0",
+    "swagger-ui": "^5.4.2",
+    "swagger-ui-express": "^4.6.3",
     "ts-node": "^10.9.1",
     "winston": "^3.10.0"
   },

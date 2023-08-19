@@ -20,16 +20,15 @@ export const createProduct = async (
   {
     name,
     description,
-    defaultImage,
+    defaultImagePath,
     category,
   }: {
     name: string;
     description: string;
-    defaultImage: string;
+    defaultImagePath: string;
     category: string;
   },
 ) => {
-  const defaultImagePath = '/static/prod-img.png'; // temporary
   const product = await prisma.product.create({
     data: {
       name,
@@ -88,6 +87,28 @@ export const getProduct = async (
     },
   });
   return product;
+};
+
+export const getSellerProducts = async (sellerId: number) => {
+  const products = await prisma.product.findMany({
+    where: {
+      sellerProfileId: +sellerId,
+    },
+    select: {
+      id: true,
+      defaultImage: true,
+      name: true,
+      updatedAt: true,
+      description: true,
+      createdAt: true,
+      productCategory: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  return products;
 };
 
 export const getProductVariants = async (productId: number) => {

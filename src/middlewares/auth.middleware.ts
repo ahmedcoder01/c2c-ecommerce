@@ -24,8 +24,7 @@ export const requireAuth: ExpressHandler<{}, {}> = asyncHandler(async (req, res,
     res.locals.email = data.email;
     next();
   } catch {
-    // return res.sendStatus(httpStatus.FORBIDDEN);
-    return next(new HttpException(httpStatus.FORBIDDEN, httpStatus[httpStatus.FORBIDDEN]));
+    return next(new HttpException(httpStatus.UNAUTHORIZED, httpStatus[httpStatus.UNAUTHORIZED]));
   }
 });
 

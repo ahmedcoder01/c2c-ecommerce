@@ -16,17 +16,17 @@ export const createProduct: ExpressHandler<
   {
     name: string;
     description: string;
-    defaultImage: string;
     category: string;
   },
   any
 > = async (req, res) => {
   const { sellerId } = res.locals;
-  const { name, description, defaultImage, category } = req.body;
+  const { name, description, category } = req.body;
 
   try {
     await productService.checkCategoryExistsOrThrow(category);
   } catch (error) {
+    //! FOR Dev env, create category if not exists
     if (config.variables.env === 'development') {
       await productService.createCategory(category);
       return;
@@ -34,20 +34,33 @@ export const createProduct: ExpressHandler<
 
     throw error;
   }
-  //! FOR Dev env, create category if not exists
 
-  // TODO: upload image
-  const defaultImagePath = '/static/prod-img.png'; // temporary
+  const imagePath = req?.file?.path;
 
   const product = await productService.createProduct(sellerId, {
     category,
-    defaultImage: defaultImagePath,
+    defaultImagePath: imagePath!,
     name,
     description,
   });
 
   res.status(httpStatus.CREATED).json({
     product,
+  });
+};
+
+export const getProducts: ExpressHandler<
+  any,
+  {
+    products: Omit<Product, 'productCategoryId' | 'sellerProfileId'>[];
+  }
+> = async (req, res) => {
+  const { sellerId } = res.locals;
+
+  const products = await productService.getSellerProducts(sellerId);
+
+  res.status(httpStatus.OK).json({
+    products,
   });
 };
 
