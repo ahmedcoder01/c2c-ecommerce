@@ -1,4 +1,5 @@
 import httpStatus from 'http-status';
+import _ from 'lodash';
 import prisma from '../../prisma/prisma-client';
 import HttpException from '../utils/http-exception';
 
@@ -148,6 +149,49 @@ export const getProductVariationOptions = async (productId: number) => {
   return groupedByKeys;
 };
 
+export const checkProductVariantIsUniqueOrThrow = async (
+  productId: number,
+  variantKeysAndValues: {
+    key: number;
+    value: number;
+  }[],
+) => {
+  const existingVariants = await prisma.productVariant.findMany({
+    where: {
+      productId: +productId,
+    },
+    select: {
+      variationOptions: {
+        select: {
+          id: true,
+          variation: {
+            select: {
+              name: true,
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const existingVariantsWithKeysAndValues = existingVariants.map(variant => {
+    const variationOptions = variant.variationOptions.map(option => ({
+      key: option.variation.id,
+      value: option.id,
+    }));
+    return variationOptions;
+  });
+
+  for (const existingKeysAndValues of existingVariantsWithKeysAndValues) {
+    if (
+      JSON.stringify(variantKeysAndValues.sort()) === JSON.stringify(existingKeysAndValues.sort())
+    ) {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Product variant already exists');
+    }
+  }
+};
+
 export const createProductVariant = async (
   productId: number,
   variantInfo: ProductRequestVariant,
@@ -187,8 +231,8 @@ export const createProductVariant = async (
     }),
   );
 
-  // Create product variant and connect to variation options
-  // TODO: handle duplicate variant (determine if the variant is duplicate by checking if the variation options are the same)
+  await checkProductVariantIsUniqueOrThrow(productId, variantKeysAndValues);
+
   const variant = await prisma.productVariant.create({
     data: {
       name: variantInfo.name,
@@ -204,7 +248,6 @@ export const createProductVariant = async (
       },
     },
   });
-
   return variant;
 };
 

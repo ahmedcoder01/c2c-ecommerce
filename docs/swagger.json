@@ -271,33 +271,53 @@
         "summary": "Create a new product",
         "description": "Create a new product",
         "operationId": "createProduct",
-        "consumes": ["application/json"],
+        "consumes": ["multipart/form-data"],
         "produces": ["application/json"],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Product object that needs to be created",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "description": {
-                  "type": "string"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "defaultImage": {
-                  "type": "string"
+
+      
+
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "stock": {
+                    "type": "integer"
+                  },
+
+                  "variationOptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
           }
-        ],
+        },
 
         "responses": {
           "200": {
@@ -331,7 +351,6 @@
             "description": "Product not found"
           }
         }
-
       }
     },
 
@@ -416,7 +435,6 @@
             "required": true,
             "type": "integer"
           }
-          
         ],
 
         "responses": {

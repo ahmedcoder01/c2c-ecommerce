@@ -3,12 +3,14 @@ import { Router } from 'express';
 import validate from '../middlewares/validation.middleware';
 import { productValidations } from '../validations';
 import { productController } from '../controllers';
+import { upload } from '../lib/multer';
 
 const sellerProductRouter = Router();
 
 sellerProductRouter.post(
   '/',
   validate(productValidations.createProduct),
+  upload.single('file'),
   asyncHandler(productController.createProduct),
 );
 
@@ -24,7 +26,5 @@ sellerProductRouter.get(
   '/:productId/variants/options',
   asyncHandler(productController.getProductVariationOptions),
 );
-
-// get
 
 export default sellerProductRouter;

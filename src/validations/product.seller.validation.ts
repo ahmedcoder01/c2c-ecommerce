@@ -4,7 +4,6 @@ export const createProduct = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     description: Joi.string().required(),
-    defaultImage: Joi.string().required(),
     category: Joi.string().required(),
   }),
 };
