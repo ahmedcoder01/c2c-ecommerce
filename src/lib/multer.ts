@@ -1,9 +1,14 @@
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
+import httpStatus from 'http-status';
+import HttpException from '../utils/http-exception';
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
+    if (!file) {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Please upload a file');
+    }
     const userDir = `uploads/images/${req?.res?.locals?.userId}`;
 
     if (!fs.existsSync(userDir)) {
@@ -22,7 +27,10 @@ const multerFilter = (req: any, file: any, cb: any) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
-    cb(new Error('Not an image! Please upload only images.'), false);
+    cb(
+      new HttpException(httpStatus.BAD_REQUEST, 'Not an image! Please upload only images.'),
+      false,
+    );
   }
 };
 

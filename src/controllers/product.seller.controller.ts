@@ -1,8 +1,3 @@
-// TODO:
-// 1. CHECK FOR variance existence
-// 2. HANDLE edge cases
-// 3. UPLOAD image (at least to fs for now)
-
 import { Product, ProductVariant, SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
@@ -11,6 +6,8 @@ import { productService, sellerService } from '../services';
 import { ProductRequestVariant } from '../services/product.seller.service';
 import config from '../config';
 import HttpException from '../utils/http-exception';
+import { validateFields } from '../utils/validate';
+import { productValidations } from '../validations';
 
 export const createProduct: ExpressHandler<
   {
@@ -72,11 +69,22 @@ export const createProductVariant: ExpressHandlerWithParams<
   }
 > = async (req, res) => {
   const variant = req.body;
+
+  try {
+    variant.variationOptions = JSON.parse(variant.variationOptions as any);
+  } catch (error) {
+    throw new HttpException(httpStatus.BAD_REQUEST, 'Invalid variation options');
+  }
+  console.log(variant.variationOptions);
+  validateFields(variant.variationOptions, productValidations.variationOptions);
   const { productId } = req.params;
 
   await productService.checkProductExistsOrThrow(productId);
 
-  const productVariant = await productService.createProductVariant(productId, variant);
+  const productVariant = await productService.createProductVariant(productId, {
+    ...variant,
+    imagePath: req?.file?.path,
+  });
 
   res.status(httpStatus.CREATED).json({
     productVariant,

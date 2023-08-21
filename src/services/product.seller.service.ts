@@ -7,7 +7,7 @@ export interface ProductRequestVariant {
   name: string;
   price: number;
   stock: number;
-  image: string;
+  imagePath?: string;
 
   variationOptions: {
     name: string;
@@ -259,7 +259,7 @@ export const createProductVariant = async (
       name: variantInfo.name,
       price: variantInfo.price,
       quantity: variantInfo.stock,
-      productVariantImage: variantInfo.image,
+      productVariantImage: variantInfo.imagePath,
       product: { connect: { id: productId } },
       variationOptions: {
         connect: variantKeysAndValues.map(({ key, value }) => ({

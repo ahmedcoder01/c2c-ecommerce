@@ -300,7 +300,7 @@
             "in": "formData",
             "name": "image",
             "description": "Product image",
-            "required": true,
+            "required": false,
             "type": "file"
           }
         ],
@@ -371,40 +371,49 @@
             "required": true,
             "type": "integer"
           },
+
           {
-            "in": "body",
-            "name": "body",
-            "description": "Product variant object that needs to be created",
+            "in": "formData",
+            "name": "name",
+            "description": "Product variant name",
             "required": true,
-            "schema": {
+            "type": "string"
+          },
+          {
+            "in": "formData",
+            "name": "price",
+            "description": "Product variant price",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "in": "formData",
+            "name": "image",
+            "description": "Product variant image",
+            "required": true,
+            "type": "file"
+          },
+          {
+            "in": "formData",
+            "name": "stock",
+            "description": "Product variant stock",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "formData",
+            "name": "variationOptions",
+            "description": "Product variant options",
+            "required": true,
+            "type": "array",
+            "items": {
               "type": "object",
               "properties": {
                 "name": {
                   "type": "string"
                 },
-                "price": {
-                  "type": "number"
-                },
-                "image": {
+                "value": {
                   "type": "string"
-                },
-                "stock": {
-                  "type": "integer"
-                },
-
-                "variationOptions": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 }
               }
             }

@@ -10,13 +10,18 @@ const sellerProductRouter = Router();
 
 sellerProductRouter.post(
   '/',
+  // TODO: how to handle the problem that the image is uploaded but the required validation fails?
   imageUpload.single('image'),
+  // q: what will happen if the image field was not provided?
+  // a:
   validate(productValidations.createProduct),
   asyncHandler(productController.createProduct),
 );
 
 sellerProductRouter.post(
   '/:productId/variants',
+  // TODO: add multiple image (for now one for simplicity)
+  imageUpload.single('image'),
   validate(productValidations.createProductVariant),
   asyncHandler(productController.createProductVariant),
 );
