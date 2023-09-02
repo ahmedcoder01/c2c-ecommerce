@@ -14,11 +14,12 @@ export const createProduct: ExpressHandler<
     name: string;
     description: string;
     category: string;
+    imageUrl: string;
   },
   any
 > = async (req, res) => {
   const { sellerId } = res.locals;
-  const { name, description, category } = req.body;
+  const { name, description, category, imageUrl } = req.body;
 
   try {
     await productService.checkCategoryExistsOrThrow(category);
@@ -32,11 +33,9 @@ export const createProduct: ExpressHandler<
     throw error;
   }
 
-  const imagePath = req?.file?.path;
-
   const product = await productService.createProduct(sellerId, {
     category,
-    defaultImagePath: imagePath!,
+    defaultImagePath: imageUrl!,
     name,
     description,
   });
@@ -70,21 +69,11 @@ export const createProductVariant: ExpressHandlerWithParams<
 > = async (req, res) => {
   const variant = req.body;
 
-  try {
-    variant.variationOptions = JSON.parse(variant.variationOptions as any);
-  } catch (error) {
-    throw new HttpException(httpStatus.BAD_REQUEST, 'Invalid variation options');
-  }
-  console.log(variant.variationOptions);
-  validateFields(variant.variationOptions, productValidations.variationOptions);
   const { productId } = req.params;
 
   await productService.checkProductExistsOrThrow(productId);
 
-  const productVariant = await productService.createProductVariant(productId, {
-    ...variant,
-    imagePath: req?.file?.path,
-  });
+  const productVariant = await productService.createProductVariant(productId, variant);
 
   res.status(httpStatus.CREATED).json({
     productVariant,

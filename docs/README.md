@@ -13,3 +13,7 @@ A C2C (Customer-to-Customer) E-commerce Application project. This project is a d
 ### ERD
 
 ![ERD](./images/ERD.png)
+
+### Diagrams
+
+![Deal Flow Diagram](./diagrams/deal-flow-diagram.png)

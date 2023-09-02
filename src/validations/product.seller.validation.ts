@@ -5,9 +5,8 @@ export const createProduct = {
     name: Joi.string().required(),
     description: Joi.string().required(),
     category: Joi.string().required(),
+    imageUrl: Joi.string().required(),
   }),
-
-  file: Joi.any().required(),
 };
 
 export const createProductVariants = {
@@ -18,7 +17,7 @@ export const createProductVariants = {
           name: Joi.string().required(),
           price: Joi.number().required(),
           stock: Joi.number().required(),
-          image: Joi.string().required(),
+          imageUrl: Joi.string().required(),
 
           variationOptions: Joi.array()
             .items(
@@ -33,8 +32,6 @@ export const createProductVariants = {
     ),
     productId: Joi.number().required(),
   }),
-
-  file: Joi.any().required(),
 };
 export const createProductVariant = {
   params: Joi.object().keys({
@@ -44,9 +41,17 @@ export const createProductVariant = {
     name: Joi.string().required(),
     price: Joi.number().required(),
     stock: Joi.number().required(),
+    imageUrl: Joi.string().required(),
 
     // stringified array of objects
-    variationOptions: Joi.string().required(),
+    variationOptions: Joi.array()
+      .items(
+        Joi.object().keys({
+          name: Joi.string().required(),
+          value: Joi.string().required(),
+        }),
+      )
+      .required(),
   }),
 };
 

@@ -271,37 +271,32 @@
         "summary": "Create a new product",
         "description": "Create a new product",
         "operationId": "createProduct",
-        "consumes": ["multipart/form-data"],
+        "consumes": ["application/json"],
         "produces": ["application/json"],
 
         "parameters": [
           {
-            "in": "formData",
-            "name": "name",
-            "description": "Product name",
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
             "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "description",
-            "description": "Product description",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "category",
-            "description": "Product category",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "image",
-            "description": "Product image",
-            "required": false,
-            "type": "file"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
 
@@ -371,49 +366,39 @@
             "required": true,
             "type": "integer"
           },
-
           {
-            "in": "formData",
-            "name": "name",
-            "description": "Product variant name",
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
             "required": true,
-            "type": "string"
-          },
-          {
-            "in": "formData",
-            "name": "price",
-            "description": "Product variant price",
-            "required": true,
-            "type": "number"
-          },
-          {
-            "in": "formData",
-            "name": "image",
-            "description": "Product variant image",
-            "required": true,
-            "type": "file"
-          },
-          {
-            "in": "formData",
-            "name": "stock",
-            "description": "Product variant stock",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "in": "formData",
-            "name": "variationOptions",
-            "description": "Product variant options",
-            "required": true,
-            "type": "array",
-            "items": {
+            "schema": {
               "type": "object",
               "properties": {
                 "name": {
                   "type": "string"
                 },
-                "value": {
+                "price": {
+                  "type": "number"
+                },
+                "stock": {
+                  "type": "integer"
+                },
+                "imageUrl": {
                   "type": "string"
+                },
+                "variationOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -443,6 +428,33 @@
             "description": "ID of product to return",
             "required": true,
             "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/media/upload": {
+      "post": {
+        "tags": ["Media"],
+        "summary": "Upload media",
+        "description": "Upload media",
+        "operationId": "uploadMedia",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "description": "The file to upload",
+            "required": true,
+            "type": "file"
           }
         ],
 

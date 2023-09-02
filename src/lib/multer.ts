@@ -9,13 +9,15 @@ const storage = multer.diskStorage({
     if (!file) {
       throw new HttpException(httpStatus.BAD_REQUEST, 'Please upload a file');
     }
-    const userDir = `uploads/images/${req?.res?.locals?.userId}`;
+    // const dir = `uploads/files/${req?.res?.locals?.userId}`;
 
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true });
+    const dir = `uploads/files`;
+
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
 
-    cb(null, userDir);
+    cb(null, dir);
   },
   filename(req, file, cb) {
     const ext = `.${file.mimetype.split('/')[1]}`;
@@ -24,17 +26,22 @@ const storage = multer.diskStorage({
 });
 
 const multerFilter = (req: any, file: any, cb: any) => {
-  if (file.mimetype.startsWith('image')) {
+  if (!file) {
+    cb(new HttpException(httpStatus.BAD_REQUEST, 'Please upload a file'), false);
+  }
+
+  if (
+    file.mimetype.startsWith('image') ||
+    file.mimetype.startsWith('video') ||
+    file.mimetype.startsWith('application')
+  ) {
     cb(null, true);
   } else {
-    cb(
-      new HttpException(httpStatus.BAD_REQUEST, 'Not an image! Please upload only images.'),
-      false,
-    );
+    cb(new HttpException(httpStatus.BAD_REQUEST, 'Please upload an image or video'), false);
   }
 };
 
-export const imageUpload = multer({
+export const anyFileUpload = multer({
   storage,
   fileFilter: multerFilter,
 });
