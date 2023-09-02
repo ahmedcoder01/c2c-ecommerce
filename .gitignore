@@ -25,3 +25,14 @@ db.sqlite3-journal
 combined.log
 npm-debug.log
 error.log
+
+
+uploads/*
+
+
+.DS_Store
+*/.DS_Store
+*/.DS_Store?
+*/._*
+*/.Spotlight-V100
+*/.Trashes

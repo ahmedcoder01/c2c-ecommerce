@@ -26,7 +26,9 @@ app.use(cors());
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(logRequest)
+app.use(express.urlencoded({ extended: true }));
+
+app.use(logRequest);
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
@@ -38,13 +40,17 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'API is running on /v1', version });
 });
 
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get('/api-docs', (req: Request, res: Response) => {
   res.json({
     swagger: 'the API documentation  is now available',
   });
+});
+
+// not found handler
+app.use((req: Request, res: Response, next: NextFunction) => {
+  next(new HttpException(404, 'Not found'));
 });
 
 /* eslint-disable */
@@ -58,15 +64,17 @@ app.use((err: Error | HttpException, req: Request, res: Response, next: NextFunc
     // @ts-ignore
   } else if (err && err.errorCode) {
     // @ts-ignore
-    res.status(
-      // @ts-ignore
-      err.errorCode 
-    ).json({
-      message: err.message,
-    });
+    res
+      .status(
+        // @ts-ignore
+        err.errorCode,
+      )
+      .json({
+        message: err.message,
+      });
   } else if (err) {
     // if not code provided, it's a server error, so we log it and ignore message
-    logger.error(`INTERNAL ERROR: ${err.message}`)
+    logger.error(`INTERNAL ERROR: ${err.message}`);
     res.status(500).json({
       message: err.message,
     });
@@ -82,7 +90,7 @@ const PORT = process.env.PORT || 3000;
   await prisma.$connect();
   logger.info('Connected to database');
 
-app.listen(PORT, () => {
-  logger.info(`Server is running on port ${PORT}`);
-});
-})()
+  app.listen(PORT, () => {
+    logger.info(`Server is running on port ${PORT}`);
+  });
+})();

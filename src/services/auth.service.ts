@@ -26,9 +26,6 @@ export const createUser = async ({
       email,
       password: hashedPassword,
       name,
-      sellerProfile: {
-        create: {},
-      },
       cart: {
         create: {},
       },
@@ -53,6 +50,17 @@ export const checkEmailUniqueness = async (email: string) => {
   });
   if (user) {
     throw new HttpException(409, 'Email already exists');
+  }
+};
+
+export const checkUserExistsByIdOrThrow = async (uid: number) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: uid,
+    },
+  });
+  if (!user) {
+    throw new HttpException(404, 'User does not exist');
   }
 };
 

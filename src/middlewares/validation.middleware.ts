@@ -12,7 +12,7 @@ type SchemaObject = {
 };
 
 const validate = (schema: SchemaObject) => (req: any, _res: any, next: NextFunction) => {
-  const validSchema = pick(schema, ['params', 'query', 'body']);
+  const validSchema = pick(schema, ['params', 'query', 'body', 'file']);
   const object = pick(req, Object.keys(validSchema));
   const { value, error } = Joi.compile(validSchema)
     .prefs({ errors: { label: 'key' }, abortEarly: false })

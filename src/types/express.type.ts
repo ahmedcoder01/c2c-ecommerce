@@ -7,15 +7,11 @@ export type ExpressHandlerOptional<Req, Res> = RequestHandler<
   Partial<WithError<Res>>,
   Partial<Req>
 >;
-export type ExpressHandler<Req, Res> = RequestHandler<
-  Record<string, string>,
-  WithError<Res>,
-  Req
->;
+export type ExpressHandler<Req, Res> = RequestHandler<Record<string, string>, WithError<Res>, Req>;
 
 export type ExpressHandlerWithParams<Params, Req, Res> = RequestHandler<
-  Partial<Params>,
+  Record<string, string> & Params,
   WithError<Res>,
-  Partial<Req>,
+  Req,
   any
 >;

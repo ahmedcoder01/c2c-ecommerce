@@ -26,5 +26,4 @@ export const me = {
   cookies: Joi.object({
     'access-token': Joi.string().required(),
   }),
-  
-}
+};
