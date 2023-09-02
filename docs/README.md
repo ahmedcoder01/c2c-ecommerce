@@ -10,8 +10,7 @@ A C2C (Customer-to-Customer) E-commerce Application project. This project is a d
 
 [Business Requirements](./requirements.md)
 
-### Milestones
-[Progress](./milstone.md)
+[Project Progress](./milestone.md)
 
 ### ERD
 
