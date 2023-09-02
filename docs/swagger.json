@@ -439,6 +439,85 @@
       }
     },
 
+    "/cart": {
+      "get": {
+        "tags": ["Cart"],
+        "summary": "Get cart",
+        "description": "Get cart",
+        "operationId": "getCart",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/cart/add": {
+      "post": {
+        "tags": ["Cart"],
+        "summary": "Add to cart",
+        "description": "Add to cart",
+        "operationId": "addToCart",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be added to cart",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "productVariantId": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/cart/{cartItemId}": {
+      "delete": {
+        "tags": ["Cart"],
+        "summary": "Delete cart item",
+        "description": "Delete cart item",
+        "operationId": "deleteCartItem",
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "cartItemId",
+            "in": "path",
+            "description": "ID of cart item to delete",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
     "/media/upload": {
       "post": {
         "tags": ["Media"],

@@ -19,6 +19,7 @@ const envVarsSchema = Joi.object()
     JWT_REFRESH_SECRET: Joi.string().required(),
     PASSWORD_SALT_ROUNDS: Joi.number().default(10),
     DATABASE_URL: Joi.string().required(),
+    STRIPE_SECRET_KEY: Joi.string().required(),
   })
   .unknown();
 
@@ -39,6 +40,7 @@ type configType = {
     env: string;
     port: number;
     databaseUrl: string;
+    stripeSecretKey: string;
   };
 
   package: {
@@ -55,6 +57,7 @@ export const config: configType = {
     env: envVars.NODE_ENV,
     port: envVars.PORT,
     databaseUrl: envVars.DATABASE_URL,
+    stripeSecretKey: envVars.STRIPE_SECRET_KEY,
   },
 
   package: {

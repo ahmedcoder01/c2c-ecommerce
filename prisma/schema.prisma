@@ -35,7 +35,7 @@ model User {
 
 model SellerProfile {
   id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int      @unique
   name        String
   phone       String
@@ -44,11 +44,25 @@ model SellerProfile {
   updatedAt   DateTime @updatedAt
 
   products Product[]
+
+  // seller balance relation
+  sellerBalance SellerBalance?
+}
+
+model SellerBalance {
+  id        Int      @id @default(autoincrement())
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // seller profile relation
+  sellerProfile SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  sellerProfileId Int @unique
 }
 
 model ShippingAddress {
   id      Int     @id @default(autoincrement())
-  user    User    @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int
   name    String?
   phone   String?
@@ -88,8 +102,8 @@ model Product {
   productVariants   ProductVariant[]
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
   productCategoryId Int
-  sellerProfile     SellerProfile    @relation(fields: [sellerProfileId], references: [id])
-  sellerProfileId   Int
+  sellerProfile     SellerProfile?    @relation(fields: [sellerProfileId], references: [id], onDelete: SetNull)
+  sellerProfileId   Int?
 
   productReviews ProductReview[]
 }
@@ -99,9 +113,9 @@ model ProductVariant {
   name                String
   description         String?
   price               Float
-  quantity            Int
+  stock         Int
   productVariantImage String?
-  product             Product           @relation(fields: [productId], references: [id])
+  product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId           Int
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
@@ -121,8 +135,8 @@ model Variation {
   name              String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  productCategory   ProductCategory   @relation(fields: [productCategoryId], references: [id])
-  productCategoryId Int
+  productCategory   ProductCategory?   @relation(fields: [productCategoryId], references: [id], onDelete: SetNull)
+  productCategoryId Int?
   variationOptions  VariationOption[]
 }
 
@@ -131,7 +145,7 @@ model VariationOption {
   value           String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  variation       Variation        @relation(fields: [variationName], references: [name])
+  variation       Variation        @relation(fields: [variationName], references: [name], onDelete: Cascade)
   variationName   String
   productVariants ProductVariant[]
 }
@@ -139,7 +153,7 @@ model VariationOption {
 // Cart and orders
 model Cart {
   id        Int        @id @default(autoincrement())
-  user      User       @relation(fields: [userId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int        @unique
   cartItems CartItem[]
   createdAt DateTime   @default(now())
@@ -148,9 +162,9 @@ model Cart {
 
 model CartItem {
   id               Int            @id @default(autoincrement())
-  cart             Cart           @relation(fields: [cartId], references: [id])
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   cartId           Int
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
   productVariantId Int
   quantity         Int
   createdAt        DateTime       @default(now())
@@ -159,22 +173,33 @@ model CartItem {
 
 // Orders
 
+//* DISABLE THIS JUST BECAUSE ENUM IS NOT SUPPORTED IN SQLITE
+// enum OrderStatus {
+//   PENDING
+//   PROCESSING
+//   COMPLETED
+//   CANCELLED
+// }
 model Order {
   id                Int             @id @default(autoincrement())
   user              User            @relation(fields: [userId], references: [id])
   userId            Int
   orderItems        OrderItem[]
-  shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id])
+  status String @default("PENDING")
+
+  shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: NoAction)
   shippingAddressId Int
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 }
 
+
+
 model OrderItem {
   id               Int            @id @default(autoincrement())
-  order            Order          @relation(fields: [orderId], references: [id])
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId          Int
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
   productVariantId Int
   quantity         Int
   price            Float
@@ -184,7 +209,7 @@ model OrderItem {
 
 model PaymentDetails {
   id                Int      @id @default(autoincrement())
-  user              User     @relation(fields: [userId], references: [id])
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            Int
   paymentMethod     String?
   processorProvider String   @default("STRIPE")
@@ -198,9 +223,9 @@ model PaymentDetails {
 
 model ProductReview {
   id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction)
   userId    Int
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
   rating    Int
   review    String?

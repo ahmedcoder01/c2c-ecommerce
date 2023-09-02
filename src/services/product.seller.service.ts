@@ -3,6 +3,8 @@ import _ from 'lodash';
 import prisma from '../../prisma/prisma-client';
 import HttpException from '../utils/http-exception';
 
+// TODO: broken product variant duplication check
+
 export interface ProductRequestVariant {
   name: string;
   price: number;
@@ -78,7 +80,7 @@ export const getProduct = async (
             id: true,
             name: true,
             price: true,
-            quantity: true,
+            stock: true,
             productVariantImage: true,
             variationOptions: {},
           },
@@ -120,7 +122,7 @@ export const getProductVariants = async (productId: number) => {
       id: true,
       name: true,
       price: true,
-      quantity: true,
+      stock: true,
       productVariantImage: true,
       variationOptions: {
         select: {
@@ -213,6 +215,17 @@ export const checkProductVariantIsUniqueOrThrow = async (
   }
 };
 
+export const checkProductVariantExistsOrThrow = async (variantId: number) => {
+  const variant = await prisma.productVariant.findFirst({
+    where: {
+      id: +variantId,
+    },
+  });
+  if (!variant) {
+    throw new HttpException(httpStatus.BAD_REQUEST, 'Product variant does not exist');
+  }
+};
+
 export const createProductVariant = async (
   productId: number,
   variantInfo: ProductRequestVariant,
@@ -258,7 +271,7 @@ export const createProductVariant = async (
     data: {
       name: variantInfo.name,
       price: variantInfo.price,
-      quantity: variantInfo.stock,
+      stock: variantInfo.stock,
       productVariantImage: variantInfo.imageUrl,
       product: { connect: { id: productId } },
       variationOptions: {
@@ -266,6 +279,34 @@ export const createProductVariant = async (
           id: value,
           variation: { id: key },
         })),
+      },
+    },
+  });
+  return variant;
+};
+
+export const getProductVariantById = async (variantId: number) => {
+  const variant = await prisma.productVariant.findFirst({
+    where: {
+      id: +variantId,
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      stock: true,
+      productVariantImage: true,
+      variationOptions: {
+        select: {
+          id: true,
+          value: true,
+          variation: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       },
     },
   });
