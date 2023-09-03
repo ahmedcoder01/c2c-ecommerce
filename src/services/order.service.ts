@@ -45,6 +45,11 @@ export const createOrderFromCart = async ({
       throw new HttpException(httpStatus.INTERNAL_SERVER_ERROR, 'Cart not found');
     }
 
+    // if the cart is empty, throw an error
+    if (!cart.cartItems.length) {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Cart is empty');
+    }
+
     const hasAnyOutOfStock = cart.cartItems.some(
       cartItem => cartItem.productVariant.stock < cartItem.quantity,
     );

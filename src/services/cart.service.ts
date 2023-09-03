@@ -83,7 +83,9 @@ export const removeProductFromCart = async (cartItemId: number) => {
         id: cartItemId,
       },
       data: {
-        quantity: cartItem.quantity - 1,
+        quantity: {
+          decrement: 1,
+        },
       },
     });
   }

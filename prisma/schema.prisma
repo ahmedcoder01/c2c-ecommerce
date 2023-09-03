@@ -100,7 +100,6 @@ model Product {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   productVariants   ProductVariant[]
-  deletedAt         DateTime?
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
   productCategoryId Int
   sellerProfile     SellerProfile?    @relation(fields: [sellerProfileId], references: [id], onDelete: SetNull)
@@ -117,7 +116,6 @@ model ProductVariant {
   stock         Int
   productVariantImage String?
   product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  deletedAt           DateTime?
   productId           Int
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt

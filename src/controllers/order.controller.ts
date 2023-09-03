@@ -5,7 +5,7 @@ import { ExpressHandler } from '../types';
 export const createOrderFromCart: ExpressHandler<
   { shippingAddressId: number },
   {
-    sessionId: string;
+    session: any;
   }
 > = async (req, res) => {
   const { shippingAddressId } = req.body;
@@ -27,7 +27,12 @@ export const createOrderFromCart: ExpressHandler<
     orderDetails: order,
   });
 
-  res.json({ sessionId: session.id });
+  res.json({
+    session: {
+      id: session.id,
+      url: session.url,
+    },
+  });
 
   // TODO: THEN HANDLE WEBHOOKS
 };

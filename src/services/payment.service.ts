@@ -53,7 +53,7 @@ export const generateOrderCheckoutSession = async ({
               orderItem.productVariant.product.defaultImage)!,
           ],
         },
-        unit_amount: orderItem.price,
+        unit_amount: orderItem.price * 100,
       },
       quantity: orderItem.quantity,
     }),

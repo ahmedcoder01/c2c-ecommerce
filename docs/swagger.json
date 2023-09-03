@@ -727,6 +727,40 @@
       }
     },
 
+    "/checkout": {
+      "post": {
+        "tags": ["Checkout"],
+        "summary": "Checkout",
+        "description": "Checkout",
+        "operationId": "checkout",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Checkout object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "shippingAddressId": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
     "/media/upload": {
       "post": {
         "tags": ["Media"],

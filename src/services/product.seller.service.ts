@@ -20,66 +20,6 @@ export interface ProductRequestVariant {
   variationOptions: VariationOption[];
 }
 
-//* Soft delete prisma to handle soft delete
-
-const softDeletePrisma = prisma.$extends({
-  query: {
-    product: {
-      async findFirst({ model, operation, args, query }) {
-        // eslint-disable-next-line no-param-reassign
-        args.where = {
-          ...args.where,
-          deletedAt: null,
-        };
-
-        return query(args);
-      },
-
-      async findMany({ model, operation, args, query }) {
-        // eslint-disable-next-line no-param-reassign
-        args.where = {
-          ...args.where,
-          deletedAt: null,
-        };
-
-        return query(args);
-      },
-
-      async count({ model, operation, args, query }) {
-        // eslint-disable-next-line no-param-reassign
-        args.where = {
-          ...args.where,
-          deletedAt: null,
-        };
-
-        return query(args);
-      },
-
-      async findUnique({ model, operation, args, query }) {
-        // eslint-disable-next-line no-param-reassign
-        args.where = {
-          ...args.where,
-          deletedAt: null,
-        };
-
-        return query(args);
-      },
-
-      upsert({ model, operation, args, query }) {
-        // eslint-disable-next-line no-param-reassign
-        args.where = {
-          ...args.where,
-          deletedAt: null,
-        };
-
-        return query(args);
-      },
-
-      // add any other query methods you want to override here to handle soft delete
-    },
-  },
-});
-
 export const createProduct = async (
   sellerId: number,
   {
@@ -94,7 +34,7 @@ export const createProduct = async (
     category: string;
   },
 ) => {
-  const product = await softDeletePrisma.product.create({
+  const product = await prisma.product.create({
     data: {
       name,
       defaultImage,
@@ -115,51 +55,17 @@ export const createProduct = async (
 };
 
 export const removeProduct = async (productId: number, sellerId: number) => {
-  // check if any order items linked to this product, if so, soft delete, else hard delete
+  // TODO: what if there are orders linked to this product?
 
-  const orderItem = await softDeletePrisma.orderItem.findFirst({
+  await prisma.product.delete({
     where: {
-      productVariant: {
-        product: {
-          id: +productId,
-        },
+      id: +productId,
+
+      sellerProfile: {
+        id: sellerId,
       },
     },
   });
-
-  if (orderItem) {
-    await softDeletePrisma.$transaction([
-      softDeletePrisma.product.update({
-        where: {
-          id: +productId,
-          sellerProfile: {
-            id: sellerId,
-          },
-        },
-        data: {
-          deletedAt: new Date(),
-        },
-      }),
-      softDeletePrisma.productVariant.updateMany({
-        where: {
-          productId: +productId,
-        },
-        data: {
-          deletedAt: new Date(),
-        },
-      }),
-    ]);
-  } else {
-    await softDeletePrisma.product.delete({
-      where: {
-        id: +productId,
-
-        sellerProfile: {
-          id: sellerId,
-        },
-      },
-    });
-  }
 };
 
 export const getProduct = async (
@@ -168,7 +74,7 @@ export const getProduct = async (
     includeVariants?: boolean;
   },
 ) => {
-  const product = await softDeletePrisma.product.findFirst({
+  const product = await prisma.product.findFirst({
     where: {
       id: +productId,
     },
@@ -204,7 +110,7 @@ export const getProduct = async (
 };
 
 export const getSellerProducts = async (sellerId: number) => {
-  const products = await softDeletePrisma.product.findMany({
+  const products = await prisma.product.findMany({
     where: {
       sellerProfileId: +sellerId,
     },
@@ -226,7 +132,7 @@ export const getSellerProducts = async (sellerId: number) => {
 };
 
 export const getProductVariants = async (productId: number) => {
-  const productVariants = await softDeletePrisma.productVariant.findMany({
+  const productVariants = await prisma.productVariant.findMany({
     where: {
       productId: +productId,
     },
@@ -254,43 +160,22 @@ export const getProductVariants = async (productId: number) => {
 };
 
 export const removeProductVariant = async (variantId: number, sellerId: number) => {
-  // check if any order items linked to this variant, if so, soft delete, else hard delete
-  const orderItems = await softDeletePrisma.orderItem.findFirst({
+  // TODO: what if there are orders linked to this product variant?
+
+  await prisma.productVariant.delete({
     where: {
-      productVariantId: +variantId,
+      id: +variantId,
+      product: {
+        sellerProfile: {
+          id: sellerId,
+        },
+      },
     },
   });
-
-  if (orderItems) {
-    await softDeletePrisma.productVariant.update({
-      where: {
-        id: +variantId,
-        product: {
-          sellerProfile: {
-            id: sellerId,
-          },
-        },
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-  } else {
-    await softDeletePrisma.productVariant.delete({
-      where: {
-        id: +variantId,
-        product: {
-          sellerProfile: {
-            id: sellerId,
-          },
-        },
-      },
-    });
-  }
 };
 
 export const getProductVariationOptions = async (productId: number) => {
-  const productVariantOptions = await softDeletePrisma.variationOption.findMany({
+  const productVariantOptions = await prisma.variationOption.findMany({
     where: {
       productVariants: {
         some: {
@@ -327,7 +212,7 @@ export const checkProductVariantIsUniqueOrThrow = async (
     value: number;
   }[],
 ) => {
-  const existingVariants = await softDeletePrisma.productVariant.findMany({
+  const existingVariants = await prisma.productVariant.findMany({
     where: {
       productId: +productId,
     },
@@ -364,7 +249,7 @@ export const checkProductVariantIsUniqueOrThrow = async (
 };
 
 export const checkProductVariantExistsOrThrow = async (variantId: number) => {
-  const variant = await softDeletePrisma.productVariant.findFirst({
+  const variant = await prisma.productVariant.findFirst({
     where: {
       id: +variantId,
     },
@@ -384,7 +269,7 @@ export const createProductVariant = async (
   // Prepare variation keys and options
   const variantKeysAndValues = await Promise.all(
     variantInfo.variationOptions.map(async option => {
-      const keyRecord = await softDeletePrisma.variation.upsert({
+      const keyRecord = await prisma.variation.upsert({
         where: { name: option.name },
         update: {},
         create: {
@@ -394,13 +279,13 @@ export const createProductVariant = async (
         select: { id: true },
       });
 
-      let valueRecord = await softDeletePrisma.variationOption.findFirst({
+      let valueRecord = await prisma.variationOption.findFirst({
         where: { variation: { id: keyRecord.id }, value: option.value },
         select: { id: true },
       });
 
       if (!valueRecord) {
-        valueRecord = await softDeletePrisma.variationOption.create({
+        valueRecord = await prisma.variationOption.create({
           data: {
             variation: { connect: { id: keyRecord.id } },
             value: option.value,
@@ -415,7 +300,7 @@ export const createProductVariant = async (
 
   await checkProductVariantIsUniqueOrThrow(productId, variantKeysAndValues);
 
-  const variant = await softDeletePrisma.productVariant.create({
+  const variant = await prisma.productVariant.create({
     data: {
       name: variantInfo.name,
       price: variantInfo.price,
@@ -434,7 +319,7 @@ export const createProductVariant = async (
 };
 
 export const getProductVariantById = async (variantId: number) => {
-  const variant = await softDeletePrisma.productVariant.findFirst({
+  const variant = await prisma.productVariant.findFirst({
     where: {
       id: +variantId,
     },
@@ -462,7 +347,7 @@ export const getProductVariantById = async (variantId: number) => {
 };
 
 export const checkCategoryExistsOrThrow = async (category: string) => {
-  const categoryExists = await softDeletePrisma.productCategory.findFirst({
+  const categoryExists = await prisma.productCategory.findFirst({
     where: {
       name: category,
     },
@@ -477,7 +362,7 @@ export const checkCategoryExistsOrThrow = async (category: string) => {
 };
 
 export const createCategory = async (name: string) => {
-  const category = await softDeletePrisma.productCategory.upsert({
+  const category = await prisma.productCategory.upsert({
     where: {
       name,
     },
@@ -491,7 +376,7 @@ export const createCategory = async (name: string) => {
 };
 
 export const checkProductExistsOrThrow = async (productId: number) => {
-  const product = await softDeletePrisma.product.findFirst({
+  const product = await prisma.product.findFirst({
     where: {
       id: +productId,
     },
@@ -523,7 +408,7 @@ export const updateProduct = async (
   },
 ) => {
   // if varia
-  const product = await softDeletePrisma.product.update({
+  const product = await prisma.product.update({
     where: {
       id: +productId,
     },
@@ -561,7 +446,7 @@ export const updateProductVariant = async (
   productId: number,
   variantInfo: Partial<Pick<ProductRequestVariant, 'name' | 'price' | 'stock' | 'imageUrl'>>,
 ) => {
-  const productVariant = await softDeletePrisma.productVariant.update({
+  const productVariant = await prisma.productVariant.update({
     where: {
       id: +variantId,
       productId: +productId,
@@ -576,9 +461,3 @@ export const updateProductVariant = async (
 
   return productVariant;
 };
-
-// eslint-disable-next-line no-underscore-dangle
-const _tools = {
-  softDeletePrisma,
-};
-export { _tools };
