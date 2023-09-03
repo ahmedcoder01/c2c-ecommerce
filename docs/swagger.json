@@ -292,7 +292,7 @@
                 "category": {
                   "type": "string"
                 },
-                "imageUrl": {
+                "defaultImage": {
                   "type": "string"
                 }
               }
@@ -336,11 +336,98 @@
             "description": "ID of product to return",
             "required": true,
             "type": "integer"
+          },
+
+          {
+            "name": "includeVariants",
+            "in": "query",
+            "description": "Include product variants",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
             "description": "Product fetched"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      },
+
+      "delete": {
+        "description": "Delete product by id",
+        "summary": "Delete product by id",
+        "tags": ["Seller Products"],
+        "operationId": "deleteProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      },
+
+      "put": {
+        "description": "Update product by id",
+        "summary": "Update product by id",
+        "tags": ["Seller Products"],
+        "operationId": "updateProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "productCategory": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "defaultImage": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product updated"
           },
           "404": {
             "description": "Product not found"
@@ -412,6 +499,7 @@
         }
       }
     },
+
     "/sellers/products/{productId}/variants/options": {
       "get": {
         "tags": ["Seller Products"],
@@ -428,6 +516,127 @@
             "description": "ID of product to return",
             "required": true,
             "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}/variants/{variantId}": {
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Get product variant by id",
+        "summary": "Get product variant by id",
+        "operationId": "getProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Seller Products"],
+        "description": "Delete product variant by id",
+        "summary": "Delete product variant by id",
+        "operationId": "deleteProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "put": {
+        "tags": ["Seller Products"],
+        "description": "Update product variant by id",
+        "summary": "Update product variant by id",
+        "operationId": "updateProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "stock": {
+                  "type": "integer"
+                },
+                "imageUrl": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
 

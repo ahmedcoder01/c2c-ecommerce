@@ -1,3 +1,5 @@
+import { Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import { search } from './search-engine.service';
 import { productService } from '.';
 import prisma from '../../prisma/prisma-client';
@@ -95,8 +97,8 @@ export const removeProductFromCart = async (cartItemId: number) => {
   return null;
 };
 
-export const getCartDetails: any = async (cartId: number) => {
-  const cartItems = await prisma.cartItem.findMany({
+export const getCartDetails = async (cartId: number) => {
+  let cartItems = await prisma.cartItem.findMany({
     where: {
       cart: {
         id: cartId,
@@ -142,8 +144,7 @@ export const getCartDetails: any = async (cartId: number) => {
       }),
     );
 
-    // re-fetch the cart items (recursion)
-    return getCartDetails(cartId);
+    cartItems = cartItems.filter(item => item.productVariant.stock > 0);
   }
 
   const totalPrice = cartItems
