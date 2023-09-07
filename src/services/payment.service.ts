@@ -1,62 +1,61 @@
 // STRIPE PAYMENT SERVICE
 
 import Stripe from 'stripe';
+import { Order } from '@prisma/client';
 import prisma from '../../prisma/prisma-client';
 import { stripe } from '../lib/payments';
 
-export const generateOrderCheckoutSession = async (
-  cartId: number,
-  host: string,
-  successUrl: string,
-  cancelUrl: string,
-) => {
-  const cart = await prisma.cart.findUnique({
-    where: {
-      id: cartId,
-    },
-    select: {
-      id: true,
-      cartItems: {
-        select: {
-          productVariant: {
-            select: {
-              id: true,
-              price: true,
-              product: {
-                select: {
-                  id: true,
-                  name: true,
-                  defaultImage: true,
-                  productCategory: {
-                    select: {
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          quantity: true,
-        },
-      },
-    },
-  });
+interface OrderDetails {
+  id: number;
+  orderItems: {
+    id: number;
+    price: number;
+    quantity: number;
 
-  if (!cart) {
-    throw new Error('Cart not found');
-  }
+    productVariant: {
+      id: number;
+      name: string;
+      description: string | null;
+      productVariantImage: string | null;
+      product: {
+        name: string;
+        defaultImage: string | null;
+        productCategory: {
+          name: string;
+        };
+      };
+    };
+  }[];
+  shippingAddress: {
+    address: string | null;
+    phone: string | null;
+  };
+  createdAt: Date;
+}
 
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = cart.cartItems.map(
-    cartItem => ({
+export const generateOrderCheckoutSession = async ({
+  orderDetails,
+  successUrl,
+  cancelUrl,
+}: {
+  orderDetails: OrderDetails;
+  successUrl: string;
+  cancelUrl: string;
+}) => {
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = orderDetails.orderItems.map(
+    orderItem => ({
       price_data: {
         currency: 'usd',
         product_data: {
-          name: cartItem.productVariant.product.name!,
-          images: [cartItem.productVariant.product.defaultImage!],
+          name: (orderItem.productVariant.name || orderItem.productVariant.product.name)!,
+          images: [
+            (orderItem.productVariant.productVariantImage ||
+              orderItem.productVariant.product.defaultImage)!,
+          ],
         },
-        unit_amount: cartItem.productVariant.price,
+        unit_amount: orderItem.price * 100,
       },
-      quantity: cartItem.quantity,
+      quantity: orderItem.quantity,
     }),
   );
 
@@ -64,11 +63,11 @@ export const generateOrderCheckoutSession = async (
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: `${host}${successUrl}?cartId=${cart.id}`,
-    cancel_url: `${host}${cancelUrl}`,
+    success_url: `${successUrl}?orderId=${orderDetails.id}`,
+    cancel_url: `${cancelUrl}?orderId=${orderDetails.id}`,
 
     metadata: {
-      cartId: cart.id.toString(),
+      orderId: orderDetails.id.toString(),
     },
   });
 

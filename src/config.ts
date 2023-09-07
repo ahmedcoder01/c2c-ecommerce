@@ -20,6 +20,8 @@ const envVarsSchema = Joi.object()
     PASSWORD_SALT_ROUNDS: Joi.number().default(10),
     DATABASE_URL: Joi.string().required(),
     STRIPE_SECRET_KEY: Joi.string().required(),
+    STRIPE_SUCCESS_URL: Joi.string().required(),
+    STRIPE_CANCEL_URL: Joi.string().required(),
   })
   .unknown();
 
@@ -34,6 +36,8 @@ if (error) {
 
 type configType = {
   variables: {
+    stripeSuccessUrl: string;
+    stripeCancelUrl: string;
     jwtAccessSecret: string;
     jwtRefreshSecret: string;
     passwordSaltRounds: string;
@@ -51,6 +55,8 @@ type configType = {
 
 export const config: configType = {
   variables: {
+    stripeSuccessUrl: envVars.STRIPE_SUCCESS_URL,
+    stripeCancelUrl: envVars.STRIPE_CANCEL_URL,
     jwtAccessSecret: envVars.JWT_ACCESS_SECRET,
     jwtRefreshSecret: envVars.JWT_REFRESH_SECRET,
     passwordSaltRounds: envVars.PASSWORD_SALT_ROUNDS,

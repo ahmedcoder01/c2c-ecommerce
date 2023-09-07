@@ -5,7 +5,9 @@ export const createProduct = {
     name: Joi.string().required(),
     description: Joi.string().required(),
     category: Joi.string().required(),
-    imageUrl: Joi.string().required(),
+    defaultImage: Joi.string()
+      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
+      .optional(),
   }),
 };
 
@@ -17,8 +19,9 @@ export const createProductVariants = {
           name: Joi.string().required(),
           price: Joi.number().required(),
           stock: Joi.number().required(),
-          imageUrl: Joi.string().required(),
-
+          imageUrl: Joi.string()
+            .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
+            .optional(),
           variationOptions: Joi.array()
             .items(
               Joi.object().keys({
@@ -41,8 +44,9 @@ export const createProductVariant = {
     name: Joi.string().required(),
     price: Joi.number().required(),
     stock: Joi.number().required(),
-    imageUrl: Joi.string().required(),
-
+    imageUrl: Joi.string()
+      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
+      .required(),
     // stringified array of objects
     variationOptions: Joi.array()
       .items(
@@ -63,3 +67,57 @@ export const variationOptions = Joi.array()
     }),
   )
   .required();
+
+export const getProduct = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+  }),
+  query: Joi.object({
+    includeVariants: Joi.boolean().default(false).optional(),
+  }),
+};
+
+export const productGet = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+  }),
+};
+
+export const variantGet = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+    variantId: Joi.number().required(),
+  }),
+};
+
+export const updateProduct = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+  }),
+  body: Joi.object({
+    name: Joi.string().optional(),
+    description: Joi.string().optional(),
+    defaultImage: Joi.string()
+      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
+      .optional(),
+
+    productCategory: Joi.object({
+      name: Joi.string().required(),
+    }).optional(),
+  }),
+};
+
+export const updateProductVariant = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+    variantId: Joi.number().required(),
+  }),
+  body: Joi.object({
+    name: Joi.string().optional(),
+    price: Joi.number().optional(),
+    stock: Joi.number().optional(),
+    imageUrl: Joi.string()
+      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
+      .optional(),
+  }),
+};

@@ -1,20 +1,23 @@
+/* eslint-disable no-underscore-dangle */
 import httpStatus from 'http-status';
 import _ from 'lodash';
 import prisma from '../../prisma/prisma-client';
 import HttpException from '../utils/http-exception';
 
 // TODO: broken product variant duplication check
-
+// TODO: handle the situation of deleting a product/variant that is stored in any other tables like the cartItem, etc
+// TODO: REMOVE THE SOFT DELETE
+interface VariationOption {
+  name: string;
+  value: string;
+}
 export interface ProductRequestVariant {
   name: string;
   price: number;
   stock: number;
   imageUrl: string;
 
-  variationOptions: {
-    name: string;
-    value: string;
-  }[];
+  variationOptions: VariationOption[];
 }
 
 export const createProduct = async (
@@ -22,19 +25,19 @@ export const createProduct = async (
   {
     name,
     description,
-    defaultImagePath,
+    defaultImage,
     category,
   }: {
     name: string;
     description: string;
-    defaultImagePath: string;
+    defaultImage: string;
     category: string;
   },
 ) => {
   const product = await prisma.product.create({
     data: {
       name,
-      defaultImage: defaultImagePath,
+      defaultImage,
       sellerProfile: {
         connect: {
           id: sellerId,
@@ -50,6 +53,21 @@ export const createProduct = async (
   });
   return product;
 };
+
+export const removeProduct = async (productId: number, sellerId: number) => {
+  // TODO: what if there are orders linked to this product?
+
+  await prisma.product.delete({
+    where: {
+      id: +productId,
+
+      sellerProfile: {
+        id: sellerId,
+      },
+    },
+  });
+};
+
 export const getProduct = async (
   productId: number,
   options?: {
@@ -139,6 +157,21 @@ export const getProductVariants = async (productId: number) => {
     },
   });
   return productVariants;
+};
+
+export const removeProductVariant = async (variantId: number, sellerId: number) => {
+  // TODO: what if there are orders linked to this product variant?
+
+  await prisma.productVariant.delete({
+    where: {
+      id: +variantId,
+      product: {
+        sellerProfile: {
+          id: sellerId,
+        },
+      },
+    },
+  });
 };
 
 export const getProductVariationOptions = async (productId: number) => {
@@ -318,6 +351,10 @@ export const checkCategoryExistsOrThrow = async (category: string) => {
     where: {
       name: category,
     },
+
+    select: {
+      id: true,
+    },
   });
   if (!categoryExists) {
     throw new HttpException(httpStatus.BAD_REQUEST, 'Category does not exist');
@@ -339,12 +376,88 @@ export const createCategory = async (name: string) => {
 };
 
 export const checkProductExistsOrThrow = async (productId: number) => {
-  const productExists = await prisma.product.findFirst({
+  const product = await prisma.product.findFirst({
     where: {
       id: +productId,
     },
+
+    select: {
+      id: true,
+    },
   });
-  if (!productExists) {
+
+  if (!product) {
     throw new HttpException(httpStatus.BAD_REQUEST, 'Product does not exist');
   }
+};
+
+export const updateProduct = async (
+  productId: number,
+  {
+    name,
+    description,
+    productCategory,
+    defaultImage,
+  }: {
+    name?: string;
+    description?: string;
+    productCategory?: {
+      name: string;
+    };
+    defaultImage?: string;
+  },
+) => {
+  // if varia
+  const product = await prisma.product.update({
+    where: {
+      id: +productId,
+    },
+    data: {
+      name,
+      description,
+      defaultImage,
+      ...(productCategory?.name && {
+        productCategory: {
+          connect: {
+            name: productCategory.name,
+          },
+        },
+      }),
+    },
+
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      defaultImage: true,
+      productCategory: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  return product;
+};
+
+export const updateProductVariant = async (
+  variantId: number,
+  productId: number,
+  variantInfo: Partial<Pick<ProductRequestVariant, 'name' | 'price' | 'stock' | 'imageUrl'>>,
+) => {
+  const productVariant = await prisma.productVariant.update({
+    where: {
+      id: +variantId,
+      productId: +productId,
+    },
+    data: {
+      name: variantInfo.name,
+      price: variantInfo.price,
+      stock: variantInfo.stock,
+      productVariantImage: variantInfo.imageUrl,
+    },
+  });
+
+  return productVariant;
 };

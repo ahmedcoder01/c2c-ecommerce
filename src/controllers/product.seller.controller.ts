@@ -14,12 +14,12 @@ export const createProduct: ExpressHandler<
     name: string;
     description: string;
     category: string;
-    imageUrl: string;
+    defaultImage: string;
   },
   any
 > = async (req, res) => {
   const { sellerId } = res.locals;
-  const { name, description, category, imageUrl } = req.body;
+  const { name, description, category, defaultImage } = req.body;
 
   try {
     await productService.checkCategoryExistsOrThrow(category);
@@ -35,7 +35,7 @@ export const createProduct: ExpressHandler<
 
   const product = await productService.createProduct(sellerId, {
     category,
-    defaultImagePath: imageUrl!,
+    defaultImage,
     name,
     description,
   });
@@ -45,10 +45,10 @@ export const createProduct: ExpressHandler<
   });
 };
 
-export const getProducts: ExpressHandler<
+export const getSellerProducts: ExpressHandler<
   any,
   {
-    products: Omit<Product, 'productCategoryId' | 'sellerProfileId'>[];
+    products: any;
   }
 > = async (req, res) => {
   const { sellerId } = res.locals;
@@ -90,9 +90,10 @@ export const getProduct: ExpressHandlerWithParams<
   }
 > = async (req, res) => {
   const { productId } = req.params;
+  const { includeVariants } = req.query;
 
   const product = await productService.getProduct(productId, {
-    includeVariants: true,
+    includeVariants,
   });
 
   if (!product) {
@@ -117,5 +118,106 @@ export const getProductVariationOptions: ExpressHandlerWithParams<
 
   res.status(httpStatus.OK).json({
     options,
+  });
+};
+
+export const getProductVariant: ExpressHandlerWithParams<
+  { productId: number; variantId: number },
+  any,
+  {
+    productVariant: any;
+  }
+> = async (req, res) => {
+  const { productId, variantId } = req.params;
+
+  const productVariant = await productService.getProductVariantById(variantId);
+
+  if (!productVariant) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Product variant not found');
+  }
+
+  res.status(httpStatus.OK).json({
+    productVariant,
+  });
+};
+
+export const deleteProduct: ExpressHandlerWithParams<{ productId: number }, {}, {}> = async (
+  req,
+  res,
+) => {
+  const { productId } = req.params;
+
+  await productService.checkProductExistsOrThrow(productId);
+  await productService.removeProduct(productId, res.locals.sellerId);
+
+  res.status(httpStatus.OK).json({
+    message: 'Product deleted',
+  });
+};
+
+export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: number }, {}, {}> = async (
+  req,
+  res,
+) => {
+  const { variantId } = req.params;
+
+  await productService.checkProductVariantExistsOrThrow(variantId);
+  await productService.removeProductVariant(variantId, res.locals.sellerId);
+
+  res.status(httpStatus.OK).json({
+    message: 'Product variant deleted',
+  });
+};
+
+export const updateProduct: ExpressHandlerWithParams<
+  { productId: number },
+  {
+    name: string;
+    description: string;
+    productCategory: {
+      name: string;
+    };
+    defaultImage: string;
+  },
+  {
+    product: any;
+  }
+> = async (req, res) => {
+  const { productId } = req.params;
+  const { name, description, productCategory, defaultImage } = req.body;
+
+  await productService.checkProductExistsOrThrow(productId);
+  if (productCategory) {
+    await productService.checkCategoryExistsOrThrow(productCategory.name);
+  }
+
+  const product = await productService.updateProduct(productId, {
+    name,
+    description,
+    productCategory,
+    defaultImage,
+  });
+
+  res.status(httpStatus.OK).json({
+    product,
+  });
+};
+
+export const updateProductVariant: ExpressHandlerWithParams<
+  { variantId: number; productId: number },
+  ProductRequestVariant,
+  {
+    productVariant: any;
+  }
+> = async (req, res) => {
+  const { variantId, productId } = req.params;
+  const variant = req.body;
+
+  await productService.checkProductVariantExistsOrThrow(variantId);
+
+  const productVariant = await productService.updateProductVariant(variantId, productId, variant);
+
+  res.status(httpStatus.OK).json({
+    productVariant,
   });
 };
