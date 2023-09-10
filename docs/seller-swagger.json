@@ -24,131 +24,7 @@
     }
   },
   "paths": {
-    "/auth/login": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Login a user",
-        "description": "Login a user",
-        "operationId": "loginUser",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "User object that needs to be logged in",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/LoginUserRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful login",
-            "schema": {
-              "$ref": "#/definitions/UserResponse"
-            }
-          },
-          "401": {
-            "description": "Invalid name/password supplied",
-            "schema": {
-              "$ref": "#/definitions/GenericErrorModel"
-            }
-          }
-        }
-      }
-    },
-
-    "/auth/signup": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Create a new user",
-        "description": "Create a new user",
-        "operationId": "createUser",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "User object that needs to be created",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/NewUserRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          },
-          "409": {
-            "description": "Email already exists"
-          }
-        }
-      }
-    },
-
-    "/auth/refresh": {
-      "get": {
-        "tags": ["Auth"],
-        "summary": "Refresh token",
-        "description": "Refresh token",
-
-        "operationId": "refreshToken",
-        "produces": ["text/plain"],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "401": {
-            "description": "Invalid token supplied",
-            "schema": {
-              "$ref": "#/definitions/GenericErrorModel"
-            }
-          }
-        }
-      }
-    },
-
-    "/auth/me": {
-      "get": {
-        "tags": ["Auth"],
-        "summary": "Get current user",
-        "description": "Get current user",
-        "operationId": "getCurrentUser",
-        "produces": ["application/json"],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "schema": {
-              "$ref": "#/definitions/UserResponse"
-            }
-          },
-          "404": {
-            "description": "User not logged in",
-            "schema": {
-              "$ref": "#/definitions/GenericErrorModel"
-            }
-          },
-          "401": {
-            "description": "Invalid token supplied",
-            "schema": {
-              "$ref": "#/definitions/GenericErrorModel"
-            }
-          }
-        }
-      }
-    },
-
-    "/sellers/register": {
+    "/sellers/profiles/register": {
       "post": {
         "tags": ["Seller"],
         "summary": "Register a seller",
@@ -186,7 +62,7 @@
       }
     },
 
-    "/sellers/profile": {
+    "/sellers/profiles/me": {
       "get": {
         "tags": ["Seller"],
         "summary": "Get seller profile",
@@ -231,7 +107,7 @@
       }
     },
 
-    "/sellers/{sellerId}": {
+    "/sellers/profiles/{sellerId}": {
       "get": {
         "tags": ["Seller"],
         "summary": "Get seller profile by id",
@@ -648,51 +524,15 @@
       }
     },
 
-    "/cart": {
+    "/sellers/orders": {
       "get": {
-        "tags": ["Cart"],
-        "summary": "Get cart",
-        "description": "Get cart",
-        "operationId": "getCart",
-        "produces": ["application/json"],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-
-    "/cart/add": {
-      "post": {
-        "tags": ["Cart"],
-        "summary": "Add to cart",
-        "description": "Add to cart",
-        "operationId": "addToCart",
+        "tags": ["Seller Orders"],
+        "description": "Get all orders",
+        "summary": "Get all orders",
+        "operationId": "getSellerOrders",
         "consumes": ["application/json"],
         "produces": ["application/json"],
 
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Product object that needs to be added to cart",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "productVariantId": {
-                  "type": "integer"
-                },
-                "quantity": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        ],
-
         "responses": {
           "200": {
             "description": "Successful operation"
@@ -701,67 +541,7 @@
       }
     },
 
-    "/cart/{cartItemId}": {
-      "delete": {
-        "tags": ["Cart"],
-        "summary": "Delete cart item",
-        "description": "Delete cart item",
-        "operationId": "deleteCartItem",
-        "produces": ["application/json"],
-
-        "parameters": [
-          {
-            "name": "cartItemId",
-            "in": "path",
-            "description": "ID of cart item to delete",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-
-    "/checkout": {
-      "post": {
-        "tags": ["Checkout"],
-        "summary": "Checkout",
-        "description": "Checkout",
-        "operationId": "checkout",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Checkout object",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "shippingAddressId": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        ],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
-
-    "/media/upload": {
+    "/media/sellers/upload": {
       "post": {
         "tags": ["Media"],
         "summary": "Upload media",
@@ -789,65 +569,6 @@
     }
   },
   "definitions": {
-    "LoginUser": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string",
-          "format": "password"
-        }
-      },
-      "required": ["email", "password"]
-    },
-    "LoginUserRequest": {
-      "type": "object",
-
-      "$ref": "#/definitions/LoginUser",
-      "required": ["user"]
-    },
-    "NewUser": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string",
-          "format": "password"
-        }
-      },
-      "required": ["name", "email", "password"]
-    },
-    "NewUserRequest": {
-      "type": "object",
-      "$ref": "#/definitions/NewUser",
-      "required": ["user"]
-    },
-    "User": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "sellerProfile": {
-          "$ref": "#/definitions/SellerProfile"
-        }
-      },
-      "required": ["email", "token", "name", "image"]
-    },
     "UserResponse": {
       "type": "object",
       "properties": {

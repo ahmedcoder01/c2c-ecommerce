@@ -1,9 +1,9 @@
 import { SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
-import prisma from '../../prisma/prisma-client';
-import { ExpressHandler, ExpressHandlerWithParams } from '../types';
-import { authService, sellerService } from '../services';
-import HttpException from '../utils/http-exception';
+import prisma from '../../../prisma/prisma-client';
+import { ExpressHandler, ExpressHandlerWithParams } from '../../types';
+import { authService, sellerService } from '../../services';
+import HttpException from '../../utils/http-exception';
 
 // Seller CRUD
 

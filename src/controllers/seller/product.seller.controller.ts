@@ -1,13 +1,13 @@
 import { Product, ProductVariant, SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
-import prisma from '../../prisma/prisma-client';
-import { ExpressHandler, ExpressHandlerWithParams } from '../types';
-import { productService, sellerService } from '../services';
-import { ProductRequestVariant } from '../services/product.seller.service';
-import config from '../config';
-import HttpException from '../utils/http-exception';
-import { validateFields } from '../utils/validate';
-import { productValidations } from '../validations';
+import prisma from '../../../prisma/prisma-client';
+import { ExpressHandler, ExpressHandlerWithParams } from '../../types';
+import { productService, sellerService } from '../../services';
+import { ProductRequestVariant } from '../../services/seller/product.seller.service';
+import config from '../../config';
+import HttpException from '../../utils/http-exception';
+import { validateFields } from '../../utils/validate';
+import { productValidations } from '../../validations';
 
 export const createProduct: ExpressHandler<
   {

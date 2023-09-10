@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { any } from 'joi';
 
 export const createProduct = {
   body: Joi.object().keys({
@@ -46,8 +46,7 @@ export const createProductVariant = {
     stock: Joi.number().required(),
     imageUrl: Joi.string()
       .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
-      .required(),
-    // stringified array of objects
+      .optional(),
     variationOptions: Joi.array()
       .items(
         Joi.object().keys({
@@ -117,7 +116,9 @@ export const updateProductVariant = {
     price: Joi.number().optional(),
     stock: Joi.number().optional(),
     imageUrl: Joi.string()
-      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
-      .optional(),
+      .optional()
+      .allow('')
+      .allow(null)
+      .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/),
   }),
 };

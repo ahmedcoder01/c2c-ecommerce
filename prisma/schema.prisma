@@ -55,9 +55,27 @@ model SellerBalance {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  logs SellerBalanceLog[]
+
   // seller profile relation
   sellerProfile SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
   sellerProfileId Int @unique
+}
+
+model SellerBalanceLog {
+  id        Int      @id @default(autoincrement())
+  amount    Float
+  message   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // seller balance relation
+  sellerBalance SellerBalance @relation(fields: [sellerBalanceId], references: [id], onDelete: Cascade)
+  sellerBalanceId Int
+
+  // order relation
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
 }
 
 model ShippingAddress {
@@ -67,6 +85,8 @@ model ShippingAddress {
   name    String?
   phone   String?
   address String?
+  country String
+  city    String
 
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -176,7 +196,7 @@ model CartItem {
 //* DISABLE THIS JUST BECAUSE ENUM IS NOT SUPPORTED IN SQLITE
 // enum OrderStatus {
 //   PENDING
-//   PROCESSING
+//   CONFIRMED
 //   COMPLETED
 //   CANCELLED
 // }
@@ -191,6 +211,9 @@ model Order {
   shippingAddressId Int
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+
+  // seller balance
+  sellerBalanceLogs SellerBalanceLog[]
 }
 
 

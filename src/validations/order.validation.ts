@@ -5,3 +5,9 @@ export const createCheckoutSession = {
     shippingAddressId: Joi.number().required(),
   }),
 };
+
+export const confirmOrder = {
+  params: Joi.object().keys({
+    orderId: Joi.number().required(),
+  }),
+};

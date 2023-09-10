@@ -1,6 +1,8 @@
+import httpStatus from 'http-status';
 import config from '../config';
 import { cartService, orderService, paymentService, shippingService } from '../services';
-import { ExpressHandler } from '../types';
+import { ExpressHandler, ExpressHandlerWithParams } from '../types';
+import HttpException from '../utils/http-exception';
 
 export const createOrderFromCart: ExpressHandler<
   { shippingAddressId: number },
@@ -35,4 +37,32 @@ export const createOrderFromCart: ExpressHandler<
   });
 
   // TODO: THEN HANDLE WEBHOOKS
+};
+
+export const listUserOrders: ExpressHandler<
+  any,
+  {
+    orders: any;
+  }
+> = async (req, res) => {
+  const { userId } = res.locals;
+  const orders = await orderService.listUserOrders(userId);
+  res.status(httpStatus.OK).json({
+    message: 'Orders fetched successfully',
+    orders,
+  });
+};
+
+export const confirmOrder: ExpressHandlerWithParams<{ orderId: number }, {}, {}> = async (
+  req,
+  res,
+) => {
+  const { orderId } = req.params;
+  const { userId } = res.locals;
+
+  const order = await orderService.confirmOrder(+orderId, userId);
+
+  res.status(httpStatus.OK).json({
+    message: 'Order confirmed',
+  });
 };

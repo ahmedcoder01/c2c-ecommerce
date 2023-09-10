@@ -6,11 +6,7 @@ import prisma from '../../prisma/prisma-client';
 import { cartService } from '.';
 import HttpException from '../utils/http-exception';
 
-// STEPS:
-// 1. Create a new order
-// 2. add each cart item to the order as a new order item and decrement the stock
-// 3. delete the cart
-// 4. create stripe checkout session
+// USER SPECIFIC
 
 export const createOrderFromCart = async ({
   cartId,
@@ -243,5 +239,169 @@ export const createOrderFromProductVariant = async ({
     });
 
     return _order;
+  });
+};
+
+//! temporary: will be removed when payment webhook is implemented
+export const confirmOrder = async (orderId: number, userId: number) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+
+      user: {
+        id: userId,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!order) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: 'CONFIRMED',
+    },
+
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  return updatedOrder;
+};
+
+export const listUserOrders = async (userId: number) => {
+  const orders = await prisma.order.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      status: true,
+      shippingAddress: {
+        select: {
+          address: true,
+          city: true,
+          country: true,
+          phone: true,
+        },
+      },
+      orderItems: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
+          productVariant: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              productVariantImage: true,
+              product: {
+                select: {
+                  defaultImage: true,
+                  name: true,
+                  description: true,
+                  productCategory: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return orders;
+};
+
+/*
+TO IMPLEMENT (for users):
+- cancel order
+- request refund
+- review product
+*/
+
+// SYSTEM SPECIFIC
+
+export const finalizeOrder = async (orderId: number) => {
+  /* STEPS:
+  - mark order as "COMPLETED"
+  - add the price to the seller's balance
+  */
+
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+    select: {
+      id: true,
+
+      orderItems: {
+        select: {
+          id: true,
+          price: true,
+          quantity: true,
+
+          productVariant: {
+            select: {
+              product: {
+                select: {
+                  sellerProfileId: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  // ATOMIC OPERATION
+  await prisma.$transaction(async tx => {
+    // mark order as completed
+    await tx.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status: 'COMPLETED',
+      },
+    });
+
+    // add the price to the seller's balance
+    for (const orderItem of order.orderItems) {
+      await tx.sellerProfile.update({
+        where: {
+          id: orderItem.productVariant.product.sellerProfileId!,
+        },
+        data: {
+          sellerBalance: {
+            update: {
+              balance: {
+                increment: orderItem.price * orderItem.quantity,
+              },
+            },
+          },
+        },
+      });
+    }
   });
 };

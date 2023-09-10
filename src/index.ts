@@ -10,7 +10,8 @@ import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import routes from './routes/routes';
 import HttpException from './utils/http-exception';
-import swaggerDocument from '../docs/swagger.json';
+import UserSwaggerDocument from '../docs/user-swagger.json';
+import SellerSwaggerDocument from '../docs/seller-swagger.json';
 import { version } from '../package.json';
 import logRequest from './middlewares/logger.middleware';
 import prisma from '../prisma/prisma-client';
@@ -39,8 +40,16 @@ app.use(express.static('public'));
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'API is running on /v1', version });
 });
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/user/api-docs',
+  swaggerUi.serveFiles(UserSwaggerDocument, {}),
+  swaggerUi.setup(UserSwaggerDocument),
+);
+app.use(
+  '/seller/api-docs',
+  swaggerUi.serveFiles(SellerSwaggerDocument, {}),
+  swaggerUi.setup(SellerSwaggerDocument),
+);
 
 app.get('/api-docs', (req: Request, res: Response) => {
   res.json({

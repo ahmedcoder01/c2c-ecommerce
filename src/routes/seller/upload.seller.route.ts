@@ -1,9 +1,8 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
-import validate from '../middlewares/validation.middleware';
-import { requireAuth, requireSellerProfile } from '../middlewares/auth.middleware';
-import { anyFileUpload } from '../lib/multer';
-import { uploadController } from '../controllers';
+import { requireAuth, requireSellerProfile } from '../../middlewares/auth.middleware';
+import { anyFileUpload } from '../../lib/multer';
+import { uploadController } from '../../controllers';
 
 const uploadRoute = Router();
 

@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import httpStatus from 'http-status';
 import _ from 'lodash';
-import prisma from '../../prisma/prisma-client';
-import HttpException from '../utils/http-exception';
+import prisma from '../../../prisma/prisma-client';
+import HttpException from '../../utils/http-exception';
 
 // TODO: broken product variant duplication check
 // TODO: handle the situation of deleting a product/variant that is stored in any other tables like the cartItem, etc

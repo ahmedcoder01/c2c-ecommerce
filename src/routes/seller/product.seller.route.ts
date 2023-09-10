@@ -1,11 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
 import Joi from 'joi';
-import validate from '../middlewares/validation.middleware';
-import { productValidations } from '../validations';
-import { productController } from '../controllers';
-import { anyFileUpload } from '../lib/multer';
-import logger from '../logger';
+import validate from '../../middlewares/validation.middleware';
+import { productValidations } from '../../validations';
+import { productController } from '../../controllers';
+import { anyFileUpload } from '../../lib/multer';
+import logger from '../../logger';
 
 const sellerProductRouter = Router();
 

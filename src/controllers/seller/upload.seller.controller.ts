@@ -1,4 +1,4 @@
-import { ExpressHandler } from '../types';
+import { ExpressHandler } from '../../types';
 
 export const upload: ExpressHandler<any, any> = async (req, res) => {
   const { file } = req;

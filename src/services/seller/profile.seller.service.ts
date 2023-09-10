@@ -1,7 +1,7 @@
 import { SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
-import prisma from '../../prisma/prisma-client';
-import HttpException from '../utils/http-exception';
+import prisma from '../../../prisma/prisma-client';
+import HttpException from '../../utils/http-exception';
 
 export const checkExistsOrThrow = async (uid: number) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
@@ -57,6 +57,11 @@ export const register = async (
       user: {
         connect: {
           id: uid,
+        },
+      },
+      sellerBalance: {
+        create: {
+          balance: 0,
         },
       },
     },
