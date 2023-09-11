@@ -60,9 +60,21 @@ export const confirmOrder: ExpressHandlerWithParams<{ orderId: number }, {}, {}>
   const { orderId } = req.params;
   const { userId } = res.locals;
 
-  const order = await orderService.confirmOrder(+orderId, userId);
+  const order = await orderService.markOrderAsConfirmed(+orderId);
 
   res.status(httpStatus.OK).json({
     message: 'Order confirmed',
   });
 };
+
+export const completeOrderAfterDelivery: ExpressHandlerWithParams<{ orderId: number }, {}, {}> =
+  async (req, res) => {
+    const { orderId } = req.params;
+    const { userId } = res.locals;
+
+    await orderService.finalizeOrder(+orderId, userId);
+
+    res.status(httpStatus.OK).json({
+      message: 'Order completed',
+    });
+  };

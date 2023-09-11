@@ -1,7 +1,7 @@
 // SELLER SPECIFIC
 import prisma from '../../../prisma/prisma-client';
 
-export const listSellerOrders = async (sellerId: number) => {
+export const listSellerOrders = async (sellerId: number, active?: boolean) => {
   const ordersItems = await prisma.orderItem.findMany({
     where: {
       productVariant: {
@@ -11,7 +11,7 @@ export const listSellerOrders = async (sellerId: number) => {
       },
 
       order: {
-        status: 'CONFIRMED',
+        status: active ? 'CONFIRMED' : 'COMPLETED',
       },
     },
 

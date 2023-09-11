@@ -3,7 +3,7 @@
 // ! can a seller buy from himself?
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
-import { cartService } from '.';
+import { cartService, mailService } from '.';
 import HttpException from '../utils/http-exception';
 
 // USER SPECIFIC
@@ -242,42 +242,6 @@ export const createOrderFromProductVariant = async ({
   });
 };
 
-//! temporary: will be removed when payment webhook is implemented
-export const confirmOrder = async (orderId: number, userId: number) => {
-  const order = await prisma.order.findUnique({
-    where: {
-      id: orderId,
-
-      user: {
-        id: userId,
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!order) {
-    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
-  }
-
-  const updatedOrder = await prisma.order.update({
-    where: {
-      id: orderId,
-    },
-    data: {
-      status: 'CONFIRMED',
-    },
-
-    select: {
-      id: true,
-      status: true,
-    },
-  });
-
-  return updatedOrder;
-};
-
 export const listUserOrders = async (userId: number) => {
   const orders = await prisma.order.findMany({
     where: {
@@ -328,8 +292,8 @@ export const listUserOrders = async (userId: number) => {
   return orders;
 };
 
-/*
-TO IMPLEMENT (for users):
+/* 
+* TO IMPLEMENT (for users):
 - cancel order
 - request refund
 - review product
@@ -337,45 +301,63 @@ TO IMPLEMENT (for users):
 
 // SYSTEM SPECIFIC
 
-export const finalizeOrder = async (orderId: number) => {
+export const finalizeOrder = async (orderId: number, userId: number) => {
+  //* In a real application, this function should be called after the delivery service confirms that the package has been delivered
   /* STEPS:
   - mark order as "COMPLETED"
   - add the price to the seller's balance
   */
 
-  const order = await prisma.order.findUnique({
-    where: {
-      id: orderId,
-    },
-    select: {
-      id: true,
+  // ATOMIC OPERATION
+  const order = await prisma.$transaction(async tx => {
+    // eslint-disable-next-line no-underscore-dangle
+    const _order = await tx.order.findUnique({
+      where: {
+        id: orderId,
+        user: {
+          id: userId,
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
 
-      orderItems: {
-        select: {
-          id: true,
-          price: true,
-          quantity: true,
+        orderItems: {
+          select: {
+            id: true,
+            price: true,
+            quantity: true,
 
-          productVariant: {
-            select: {
-              product: {
-                select: {
-                  sellerProfileId: true,
+            productVariant: {
+              select: {
+                product: {
+                  select: {
+                    sellerProfileId: true,
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  if (!order) {
-    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
-  }
+    if (!_order) {
+      throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
+    }
 
-  // ATOMIC OPERATION
-  await prisma.$transaction(async tx => {
+    if (_order.status !== 'CONFIRMED') {
+      if (_order.status === 'COMPLETED') {
+        throw new HttpException(httpStatus.BAD_REQUEST, 'Order was completed');
+      }
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Order is not confirmed');
+    }
+
     // mark order as completed
     await tx.order.update({
       where: {
@@ -387,7 +369,7 @@ export const finalizeOrder = async (orderId: number) => {
     });
 
     // add the price to the seller's balance
-    for (const orderItem of order.orderItems) {
+    for (const orderItem of _order.orderItems) {
       await tx.sellerProfile.update({
         where: {
           id: orderItem.productVariant.product.sellerProfileId!,
@@ -398,10 +380,66 @@ export const finalizeOrder = async (orderId: number) => {
               balance: {
                 increment: orderItem.price * orderItem.quantity,
               },
+
+              logs: {
+                create: {
+                  amount: orderItem.price * orderItem.quantity,
+                  order: {
+                    connect: {
+                      id: _order.id,
+                    },
+                  },
+                  message: `Product purchase completed`,
+                },
+              },
             },
           },
         },
       });
     }
+
+    return _order;
   });
+
+  // send user email for confirmation
+  await mailService.sendEmail({
+    email: order.user.email,
+    message: `Order #${order.id} has been completed successfully`,
+  });
+
+  // TODO: maybe send email to sellers?
+};
+
+//! temporary: will be removed when payment webhook is implemented
+export const markOrderAsConfirmed = async (orderId: number) => {
+  // make sure to send a email to the user that the order is confirmed
+
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!order) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: 'CONFIRMED',
+    },
+
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  return updatedOrder;
 };

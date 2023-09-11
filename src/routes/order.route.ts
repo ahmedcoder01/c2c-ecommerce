@@ -24,4 +24,10 @@ orderRoute.post(
 
 orderRoute.get('/orders', requireAuth, asyncHandler(orderController.listUserOrders));
 
+orderRoute.post(
+  '/orders/:orderId/complete',
+  requireAuth,
+  asyncHandler(orderController.completeOrderAfterDelivery),
+);
+
 export default orderRoute;

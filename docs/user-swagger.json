@@ -301,6 +301,33 @@
           }
         }
       }
+    },
+
+    "/orders/{orderId}/complete": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Mark order as delivered and complete it ",
+        "description": "Complete order after delivery ",
+        "operationId": "completeOrder",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of order to complete",
+            "required": true,
+            "type": "number"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
     }
   },
   "definitions": {

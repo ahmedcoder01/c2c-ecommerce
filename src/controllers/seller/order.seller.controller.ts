@@ -14,7 +14,9 @@ export const getSellerOrders: ExpressHandler<
   }
 > = async (req, res) => {
   const { sellerId } = res.locals;
-  const orders = await sellerOrderService.listSellerOrders(sellerId);
+  const { active: isActive = 'true' } = req.query;
+  // @ts-ignore
+  const orders = await sellerOrderService.listSellerOrders(sellerId, isActive === 'true');
   res.status(httpStatus.OK).json({
     message: 'Orders fetched successfully',
     orders,
