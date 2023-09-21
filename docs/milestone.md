@@ -6,9 +6,15 @@ Milestone
 - [x] Products
 - [x] Cart
 - [ ] Search Engine
-- [ ] Orders
-- [ ] Payment Processor Integration
+- [x] Orders
+- [x] Payment Processor Integration
+- [ ] Email Notifications
+- [ ] Push Notifications
+- [ ] Product Recommendation Engine (Embeddings + K-Nearest Neighbors)
+- [ ] Seller Leveling System
+
+- [ ] All Seller CRUD endpoints
+- [ ] All User CRUD endpoints
 
 - [ ] Refunds
 - [ ] Reviews
-
