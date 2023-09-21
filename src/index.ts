@@ -26,7 +26,18 @@ const app = express();
 app.use(cors());
 
 app.use(cookieParser());
-// app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      // @ts-ignore
+      const url = req.originalUrl;
+      if (url.startsWith('/v1/webhooks/payments')) {
+        // @ts-ignore
+        req.rawBody = buf;
+      }
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 
 app.use(logRequest);

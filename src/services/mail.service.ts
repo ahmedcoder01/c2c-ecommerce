@@ -11,3 +11,15 @@ export const sendEmail = async ({
 }) => {
   // logic goes here
 };
+
+export const batchSendEmail = async ({
+  emails,
+  message,
+  templateId,
+}: {
+  emails: string[];
+  message: string;
+  templateId?: number;
+}) => {
+  // logic goes here
+};

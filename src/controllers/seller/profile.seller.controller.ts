@@ -42,4 +42,19 @@ export const deleteSeller: ExpressHandler<unknown, unknown> = async (req, res) =
   res.status(httpStatus.NO_CONTENT).end();
 };
 
+// TODO: the balance controllers should be in a separate file (later)
+export const getBalanceWithLogs: ExpressHandlerWithParams<{}, unknown, { balanceDetails: any }> =
+  async (req, res) => {
+    const { sellerId } = res.locals;
+    const { includeLogs = true } = req.query;
+
+    const balanceDetails = await sellerService.getBalance(sellerId, {
+      includeLogs,
+    });
+
+    res.json({
+      balanceDetails,
+    });
+  };
+
 // Seller Product CRUD

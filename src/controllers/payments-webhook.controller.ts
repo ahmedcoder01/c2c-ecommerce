@@ -35,7 +35,8 @@ export const stripeWebhooks: ExpressHandlerWithParams<
 
   try {
     event = (await stripe.webhooks.constructEventAsync(
-      req.body,
+      // @ts-ignore
+      req.rawBody,
       sig,
       config.variables.stripeWebhooksEndpointSecret,
     )) as StripeEventWithMetadata;

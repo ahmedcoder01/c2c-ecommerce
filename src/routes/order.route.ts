@@ -15,12 +15,12 @@ orderRoute.post(
 );
 
 //! TEMP JUST UNTIL WE HAVE WEBHOOKS
-orderRoute.post(
-  '/orders/:orderId/confirm',
-  requireAuth,
-  validate(orderValidations.confirmOrder),
-  asyncHandler(orderController.confirmOrder),
-);
+// orderRoute.post(
+//   '/orders/:orderId/confirm',
+//   requireAuth,
+//   validate(orderValidations.confirmOrder),
+//   asyncHandler(orderController.confirmOrder),
+// );
 
 orderRoute.get('/orders', requireAuth, asyncHandler(orderController.listUserOrders));
 

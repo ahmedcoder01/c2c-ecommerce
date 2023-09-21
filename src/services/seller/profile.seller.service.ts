@@ -97,3 +97,26 @@ export const deleteProfile = async (uid: number) => {
     },
   });
 };
+
+export const getBalance = async (
+  sellerId: number,
+  {
+    includeLogs = true,
+  }: {
+    includeLogs?: boolean;
+  },
+) => {
+  const balance = await prisma.sellerBalance.findUnique({
+    where: {
+      sellerProfileId: sellerId,
+    },
+
+    select: {
+      balance: true,
+      updatedAt: true,
+      logs: includeLogs,
+    },
+  });
+
+  return balance;
+};

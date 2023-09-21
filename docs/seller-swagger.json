@@ -100,6 +100,28 @@
       }
     },
 
+    "/sellers/profiles": {
+      "delete": {
+        "tags": ["Seller"],
+        "summary": "Delete seller profile",
+        "description": "Delete seller profile",
+        "operationId": "deleteSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
     "/sellers/profiles/{sellerId}": {
       "get": {
         "tags": ["Seller"],
@@ -122,6 +144,36 @@
             "description": "Successful operation",
             "schema": {
               "$ref": "#/definitions/SellerProfile"
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/profiles/me/balance": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller balance",
+        "description": "Get seller balance",
+        "operationId": "getSellerBalance",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "balance": {
+                  "type": "number"
+                }
+              }
             }
           },
           "404": {

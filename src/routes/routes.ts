@@ -11,20 +11,15 @@ import paymentsWebhooks from './payment-webhook.route';
 
 const api = Router();
 
-api.use('/auth', express.json(), authRouter);
-api.use('/', express.json(), cartRouter);
-api.use('/', express.json(), orderRouter);
+api.use('/auth', authRouter);
+api.use('/', cartRouter);
+api.use('/', orderRouter);
 
 //  SELLER SPECIFIC ROUTES
-api.use(
-  '/sellers/products',
-  express.json(),
-  [requireAuth, requireSellerProfile],
-  sellerProductRouter,
-);
-api.use('/sellers/profiles', express.json(), sellerProfileRouter);
-api.use('/sellers/orders', express.json(), requireAuth, requireSellerProfile, sellerOrdersRouter);
-api.use('/sellers/media', express.json(), uploadRoute);
+api.use('/sellers/products', [requireAuth, requireSellerProfile], sellerProductRouter);
+api.use('/sellers/profiles', sellerProfileRouter);
+api.use('/sellers/orders', requireAuth, requireSellerProfile, sellerOrdersRouter);
+api.use('/sellers/media', uploadRoute);
 
 api.use('/', paymentsWebhooks);
 

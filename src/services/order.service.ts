@@ -337,7 +337,17 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
               select: {
                 product: {
                   select: {
-                    sellerProfileId: true,
+                    // sellerProfileId: true,
+                    sellerProfile: {
+                      select: {
+                        user: {
+                          select: {
+                            email: true,
+                          },
+                        },
+                        id: true,
+                      },
+                    },
                   },
                 },
               },
@@ -372,7 +382,7 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
     for (const orderItem of _order.orderItems) {
       await tx.sellerProfile.update({
         where: {
-          id: orderItem.productVariant.product.sellerProfileId!,
+          id: orderItem.productVariant.product.sellerProfile?.id!,
         },
         data: {
           sellerBalance: {
@@ -404,7 +414,19 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
   // send user email for confirmation
   await mailService.sendEmail({
     email: order.user.email,
-    message: `Order #${order.id} has been completed successfully`,
+    message: `Order #${order.id} has been completed successfully.
+    Please leave a review for the products you bought
+    `,
+  });
+
+  // send email to sellers
+  await mailService.batchSendEmail({
+    message: `Hello Seller!
+
+    Order #${order.id} has been completed successfully.`,
+    emails: order.orderItems.map(
+      orderItem => orderItem.productVariant.product.sellerProfile!.user.email,
+    ),
   });
 
   // TODO: maybe send email to sellers?
@@ -422,6 +444,28 @@ export const markOrderAsConfirmed = async (orderId: number) => {
       user: {
         select: {
           email: true,
+        },
+      },
+
+      orderItems: {
+        select: {
+          productVariant: {
+            select: {
+              product: {
+                select: {
+                  sellerProfile: {
+                    select: {
+                      user: {
+                        select: {
+                          email: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -445,9 +489,20 @@ export const markOrderAsConfirmed = async (orderId: number) => {
     },
   });
 
+  // send email to user
   await mailService.sendEmail({
     email: order.user.email,
     message: `Order #${order.id} has been confirmed. Please confirm the delivery when you receive the package`,
+  });
+
+  // send email to all sellers
+  await mailService.batchSendEmail({
+    message: `Hello Seller!
+    
+    Order #${order.id} has been confirmed. Please prepare the package for delivery`,
+    emails: order.orderItems.map(
+      orderItem => orderItem.productVariant.product.sellerProfile!.user.email,
+    ),
   });
 
   return updatedOrder;
