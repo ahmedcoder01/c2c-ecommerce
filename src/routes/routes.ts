@@ -7,6 +7,7 @@ import uploadRoute from './seller/upload.seller.route';
 import cartRouter from './cart.route';
 import orderRouter from './order.route';
 import sellerOrdersRouter from './seller/order.seller.route';
+import paymentsWebhooks from './payment-webhook.route';
 
 const api = Router();
 
@@ -19,6 +20,8 @@ api.use('/sellers/products', [requireAuth, requireSellerProfile], sellerProductR
 api.use('/sellers/profiles', sellerProfileRouter);
 api.use('/sellers/orders', requireAuth, requireSellerProfile, sellerOrdersRouter);
 api.use('/sellers/media', uploadRoute);
+
+api.use('/', paymentsWebhooks);
 
 // Serve static images
 api.use('/uploads/images', express.static('uploads/images'));

@@ -5,3 +5,4 @@ export * as uploadController from './seller/upload.seller.controller';
 export * as sellerOrdersController from './seller/order.seller.controller';
 export * as cartController from './cart.controller';
 export * as orderController from './order.controller';
+export * as paymentsWebhookController from './payments-webhook.controller';

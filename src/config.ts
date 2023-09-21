@@ -45,6 +45,7 @@ type configType = {
     port: number;
     databaseUrl: string;
     stripeSecretKey: string;
+    stripeWebhooksEndpointSecret: string;
   };
 
   package: {
@@ -64,6 +65,7 @@ export const config: configType = {
     port: envVars.PORT,
     databaseUrl: envVars.DATABASE_URL,
     stripeSecretKey: envVars.STRIPE_SECRET_KEY,
+    stripeWebhooksEndpointSecret: envVars.STRIPE_WEBHOOKS_ENDPOINT_SECRET,
   },
 
   package: {
@@ -71,5 +73,32 @@ export const config: configType = {
     version,
   },
 };
+
+const validation = Joi.object({
+  variables: Joi.object({
+    stripeSuccessUrl: Joi.string().required(),
+    stripeCancelUrl: Joi.string().required(),
+    jwtAccessSecret: Joi.string().required(),
+    jwtRefreshSecret: Joi.string().required(),
+    passwordSaltRounds: Joi.number().required(),
+    env: Joi.string().required(),
+    port: Joi.number().required(),
+    databaseUrl: Joi.string().required(),
+
+    stripeSecretKey: Joi.string().required(),
+    stripeWebhooksEndpointSecret: Joi.string().required(),
+  }),
+  package: Joi.object({
+    name: Joi.string().required(),
+    version: Joi.string().required(),
+  }),
+});
+
+const { error: validationError } = validation.validate(config);
+
+if (validationError) {
+  logger.error(`Config validation error: ${validationError.message}`);
+  throw new Error(`Config validation error: ${validationError.message}`);
+}
 
 export default config;

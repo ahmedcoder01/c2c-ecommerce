@@ -410,7 +410,6 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
   // TODO: maybe send email to sellers?
 };
 
-//! temporary: will be removed when payment webhook is implemented
 export const markOrderAsConfirmed = async (orderId: number) => {
   // make sure to send a email to the user that the order is confirmed
 

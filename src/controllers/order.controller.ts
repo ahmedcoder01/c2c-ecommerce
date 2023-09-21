@@ -3,6 +3,7 @@ import config from '../config';
 import { cartService, orderService, paymentService, shippingService } from '../services';
 import { ExpressHandler, ExpressHandlerWithParams } from '../types';
 import HttpException from '../utils/http-exception';
+import { stripe } from '../lib/payments';
 
 export const createOrderFromCart: ExpressHandler<
   { shippingAddressId: number },
@@ -53,12 +54,12 @@ export const listUserOrders: ExpressHandler<
   });
 };
 
-export const confirmOrder: ExpressHandlerWithParams<{ orderId: number }, {}, {}> = async (
+//* TEMP until using webhooks
+export const confirmOrder: ExpressHandlerWithParams<{ orderId: number }, any, {}> = async (
   req,
   res,
 ) => {
   const { orderId } = req.params;
-  const { userId } = res.locals;
 
   const order = await orderService.markOrderAsConfirmed(+orderId);
 

@@ -6,12 +6,12 @@ import { uploadController } from '../../controllers';
 
 const uploadRoute = Router();
 
-uploadRoute.post(
-  '/upload',
-  requireAuth,
-  requireSellerProfile,
-  anyFileUpload.single('file'),
-  asyncHandler(uploadController.upload),
-);
+// uploadRoute.post(
+//   '/upload',
+//   requireAuth,
+//   requireSellerProfile,
+//   anyFileUpload.single('file'),
+//   asyncHandler(uploadController.upload),
+// );
 
 export default uploadRoute;

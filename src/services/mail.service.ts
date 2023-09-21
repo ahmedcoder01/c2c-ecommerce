@@ -1,6 +1,6 @@
 // import mailersend
 
-export const sendEmail = ({
+export const sendEmail = async ({
   email,
   message,
   templateId,

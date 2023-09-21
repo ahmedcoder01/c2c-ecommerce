@@ -36,6 +36,7 @@
     "joi": "^17.9.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
+    "mailersend": "^2.2.0",
     "multer": "^1.4.5-lts.1",
     "sqlite3": "^5.1.6",
     "stripe": "^13.4.0",
