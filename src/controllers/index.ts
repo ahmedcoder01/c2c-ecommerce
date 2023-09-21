@@ -6,3 +6,4 @@ export * as sellerOrdersController from './seller/order.seller.controller';
 export * as cartController from './cart.controller';
 export * as orderController from './order.controller';
 export * as paymentsWebhookController from './payments-webhook.controller';
+export * as shippingAddressController from './shipping-address.controller';

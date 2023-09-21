@@ -141,6 +141,172 @@
       }
     },
 
+    "/shipping/addresses": {
+      "get": {
+        "tags": ["Shipping"],
+        "summary": "Get shipping addresses",
+        "description": "Get shipping addresses",
+        "operationId": "getShippingAddresses",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "post": {
+        "tags": ["Shipping"],
+        "summary": "Add shipping address",
+        "description": "Add shipping address",
+        "operationId": "addShippingAddress",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Shipping address object that needs to be added",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "isDefault": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/shipping/addresses/{shippingAddressId}": {
+      "put": {
+        "tags": ["Shipping"],
+        "summary": "Update shipping address",
+        "description": "Update shipping address",
+        "operationId": "updateShippingAddress",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "shippingAddressId",
+            "in": "path",
+            "description": "ID of shipping address to update",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Shipping address object that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "isDefault": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Shipping"],
+        "summary": "Delete shipping address",
+        "description": "Delete shipping address",
+        "operationId": "deleteShippingAddress",
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "shippingAddressId",
+            "in": "path",
+            "description": "ID of shipping address to delete",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "get": {
+        "tags": ["Shipping"],
+        "summary": "Get shipping address",
+        "description": "Get shipping address",
+        "operationId": "getShippingAddress",
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "shippingAddressId",
+            "in": "path",
+            "description": "ID of shipping address to get",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
     "/cart": {
       "get": {
         "tags": ["Cart"],

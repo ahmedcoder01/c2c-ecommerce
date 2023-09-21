@@ -6,5 +6,5 @@ export * as orderService from './order.service';
 export * as sellerOrderService from './seller/order.seller.service';
 export * as paymentService from './payment.service';
 export * as searchService from './search-engine.service';
-export * as shippingService from './shipping.service';
+export * as shippingAddressService from './shipping-address.service';
 export * as mailService from './mail.service';

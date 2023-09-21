@@ -8,12 +8,14 @@ import cartRouter from './cart.route';
 import orderRouter from './order.route';
 import sellerOrdersRouter from './seller/order.seller.route';
 import paymentsWebhooks from './payment-webhook.route';
+import shippingAdressesRouter from './shipping-address.route';
 
 const api = Router();
 
 api.use('/auth', authRouter);
 api.use('/', cartRouter);
 api.use('/', orderRouter);
+api.use('/', shippingAdressesRouter);
 
 //  SELLER SPECIFIC ROUTES
 api.use('/sellers/products', [requireAuth, requireSellerProfile], sellerProductRouter);
