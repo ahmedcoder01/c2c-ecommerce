@@ -49,6 +49,10 @@ export const stripeWebhooks: ExpressHandlerWithParams<
     case 'checkout.session.completed':
       orderService.markOrderAsConfirmed(+event.data.object.metadata.orderId);
       break;
+    case 'checkout.session.expired':
+    case 'checkout.session.async_payment_failed':
+      orderService.deleteOrder(+event.data.object.metadata.orderId);
+      break;
     default:
       logger.info(`Unhandled event type ${event.type}`);
   }

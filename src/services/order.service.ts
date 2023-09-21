@@ -419,6 +419,11 @@ export const markOrderAsConfirmed = async (orderId: number) => {
     },
     select: {
       id: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
     },
   });
 
@@ -440,5 +445,62 @@ export const markOrderAsConfirmed = async (orderId: number) => {
     },
   });
 
+  await mailService.sendEmail({
+    email: order.user.email,
+    message: `Order #${order.id} has been confirmed. Please confirm the delivery when you receive the package`,
+  });
+
   return updatedOrder;
+};
+
+export const deleteOrder = async (orderId: number) => {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+      status: 'PENDING',
+    },
+    select: {
+      id: true,
+      orderItems: {
+        select: {
+          id: true,
+          quantity: true,
+          productVariant: {
+            select: {
+              id: true,
+              stock: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Order not found');
+  }
+
+  // ATOMIC OPERATION
+  await prisma.$transaction(async tx => {
+    // increment stock that was kept for the order
+    for (const orderItem of order.orderItems) {
+      await tx.productVariant.update({
+        where: {
+          id: orderItem.productVariant.id,
+        },
+        data: {
+          stock: {
+            increment: orderItem.quantity,
+          },
+        },
+      });
+    }
+
+    // delete order
+    await tx.order.delete({
+      where: {
+        id: orderId,
+      },
+    });
+  });
 };
