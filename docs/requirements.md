@@ -39,8 +39,10 @@ This document outlines the business requirements for a Customer-to-Customer (C2C
 
 ### Order Fulfillment
 
-- Sellers should be notified when an order is placed.
-- Sellers should be able to update the status of the order (e.g., processing, shipped, delivered).
+- Sellers and Buyers should be notified when an order is placed.
+- Buyers should be able to update to mark an order as delivered.
+- Buyers should be able to update to mark an order as delivered.
+- Buyers should be able to request a refund for an order within 7 days of delivery.
 
 ### Reviews and Ratings
 

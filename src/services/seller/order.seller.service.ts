@@ -64,3 +64,57 @@ export const listSellerOrders = async (sellerId: number, active?: boolean) => {
 
   return ordersItems;
 };
+
+export const listSellerRefundRequests = async (sellerId: number) => {
+  const refundRequests = await prisma.refundRequest.findMany({
+    where: {
+      orderItem: {
+        productVariant: {
+          product: {
+            sellerProfileId: sellerId,
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      reason: true,
+      orderItem: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  return refundRequests;
+};
+
+export const approveRefundRequest = async (refundRequestId: number) => {
+  const refundRequest = await prisma.refundRequest.update({
+    where: {
+      id: refundRequestId,
+    },
+    data: {
+      status: 'APPROVED',
+    },
+    select: {
+      id: true,
+    },
+  });
+};
+
+export const rejectRefundRequest = async (refundRequestId: number) => {
+  const refundRequest = await prisma.refundRequest.update({
+    where: {
+      id: refundRequestId,
+    },
+    data: {
+      status: 'REJECTED',
+    },
+    select: {
+      id: true,
+    },
+  });
+};

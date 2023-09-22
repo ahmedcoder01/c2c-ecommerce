@@ -299,8 +299,6 @@ export const listUserOrders = async (userId: number) => {
 - review product
 */
 
-// SYSTEM SPECIFIC
-
 export const finalizeOrder = async (orderId: number, userId: number) => {
   //* In a real application, this function should be called after the delivery service confirms that the package has been delivered
   /* STEPS:
@@ -375,6 +373,7 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
       },
       data: {
         status: 'COMPLETED',
+        deliveredAt: new Date(),
       },
     });
 
@@ -432,7 +431,14 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
   // TODO: maybe send email to sellers?
 };
 
-export const markOrderAsConfirmed = async (orderId: number) => {
+export const markOrderAsConfirmed = async (
+  orderId: number,
+  {
+    paymentId,
+  }: {
+    paymentId: string;
+  },
+) => {
   // make sure to send a email to the user that the order is confirmed
 
   const order = await prisma.order.findUnique({
@@ -481,6 +487,14 @@ export const markOrderAsConfirmed = async (orderId: number) => {
     },
     data: {
       status: 'CONFIRMED',
+
+      paymentDetails: {
+        create: {
+          paymentId,
+          paymentMethod: 'ANY',
+          processorProvider: 'STRIPE',
+        },
+      },
     },
 
     select: {
@@ -508,11 +522,27 @@ export const markOrderAsConfirmed = async (orderId: number) => {
   return updatedOrder;
 };
 
-export const deleteOrder = async (orderId: number) => {
+export const cancelOrder = async ({
+  isSystemCall = false,
+  orderId,
+  userId,
+}: {
+  isSystemCall?: boolean;
+  orderId: number;
+  userId?: number;
+}) => {
   const order = await prisma.order.findUnique({
     where: {
       id: orderId,
       status: 'PENDING',
+
+      ...(!isSystemCall && userId
+        ? {
+            user: {
+              id: userId,
+            },
+          }
+        : {}),
     },
     select: {
       id: true,
@@ -552,9 +582,234 @@ export const deleteOrder = async (orderId: number) => {
     }
 
     // delete order
-    await tx.order.delete({
+    await tx.order.update({
       where: {
         id: orderId,
+      },
+
+      data: {
+        status: 'CANCELLED',
+      },
+    });
+  });
+};
+
+export const requestRefund = async (
+  orderItemId: number,
+  userId: number,
+  {
+    reason,
+  }: {
+    reason?: string;
+  },
+) => {
+  /**
+   * STEPS:
+   * - check if the order is completed
+   * - check if the order is not already refunded
+   * - check if the order is not already requested for refund
+   * - check if the order was placed within the last 7 days from the order delivery
+   */
+  const ALLOWED_TIME_THRESHOLD = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+  const { refund, orderItem } = await prisma.$transaction(async tx => {
+    const item = await prisma.orderItem.findUnique({
+      where: {
+        id: orderItemId,
+        order: {
+          user: {
+            id: userId,
+          },
+
+          deliveredAt: {
+            // should be within the last 7 days from the order delivery
+            gte: new Date(Date.now() - ALLOWED_TIME_THRESHOLD),
+          },
+        },
+      },
+      select: {
+        productVariant: {
+          select: {
+            product: {
+              select: {
+                sellerProfile: {
+                  select: {
+                    user: {
+                      select: {
+                        email: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        order: {
+          select: {
+            status: true,
+            id: true,
+          },
+        },
+
+        refundRequest: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!item) {
+      throw new HttpException(httpStatus.NOT_FOUND, 'Item not found or is not eligible for refund');
+    }
+
+    if (item.order.status !== 'COMPLETED') {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Order is not completed');
+    }
+
+    if (item.refundRequest?.id) {
+      throw new HttpException(
+        httpStatus.BAD_REQUEST,
+        `Refund request already exists with id ${item.refundRequest.id}`,
+      );
+    }
+
+    // create refund request
+    const orderRefund = await tx.refundRequest.create({
+      data: {
+        orderItem: {
+          connect: {
+            id: orderItemId,
+          },
+        },
+        reason: reason || 'No reason provided',
+        status: 'PENDING',
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
+    return {
+      refund: orderRefund,
+      orderItem: item,
+    };
+  });
+
+  // send email to seller
+  await mailService.sendEmail({
+    email: orderItem.productVariant.product.sellerProfile!.user.email,
+    message: `Hello Seller!
+
+    Order #${orderItem.order.id} has been requested for refund.
+    `,
+  });
+
+  return refund;
+};
+
+export const listRefundRequests = async (userId: number) => {
+  const refundRequests = await prisma.refundRequest.findMany({
+    where: {
+      orderItem: {
+        order: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      reason: true,
+      status: true,
+      orderItem: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
+          productVariant: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              productVariantImage: true,
+              product: {
+                select: {
+                  defaultImage: true,
+                  name: true,
+                  description: true,
+                  productCategory: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return refundRequests;
+};
+
+export const cancelRefundRequest = async (refundRequestId: number, userId: number) => {
+  const refundRequest = await prisma.refundRequest.findUnique({
+    where: {
+      id: refundRequestId,
+      orderItem: {
+        order: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+    },
+    select: {
+      id: true,
+      status: true,
+      orderItem: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
+          productVariant: {
+            select: {
+              id: true,
+              stock: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!refundRequest) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Refund request not found');
+  }
+
+  if (refundRequest.status !== 'PENDING' && refundRequest.status !== 'ACCEPTED') {
+    throw new HttpException(httpStatus.BAD_REQUEST, 'Refund request cannot be cancelled');
+  }
+
+  // ATOMIC OPERATION
+  await prisma.$transaction(async tx => {
+    // increment stock that was kept for the order
+
+    // delete refund request
+    await tx.refundRequest.update({
+      where: {
+        id: refundRequestId,
+      },
+
+      data: {
+        status: 'CANCELLED',
       },
     });
   });

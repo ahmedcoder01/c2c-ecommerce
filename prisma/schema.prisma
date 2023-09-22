@@ -26,8 +26,6 @@ model User {
   // order relation
   orders Order[]
 
-  // payment details relation
-  payments PaymentDetails[]
 
   // review and rating relation
   productReviews ProductReview[]
@@ -206,17 +204,19 @@ model Order {
   userId            Int
   orderItems        OrderItem[]
   status String @default("PENDING")
+  deliveredAt       DateTime?
 
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: NoAction)
   shippingAddressId Int
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
+  paymentDetails PaymentDetails? @relation(fields: [paymentDetailsId], references: [id], onDelete: SetNull)
+  paymentDetailsId Int?   @unique
+
   // seller balance
   sellerBalanceLogs SellerBalanceLog[]
 }
-
-
 
 model OrderItem {
   id               Int            @id @default(autoincrement())
@@ -229,18 +229,46 @@ model OrderItem {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
+  // refund request relation
+  refundRequest RefundRequest?
+
+
+}
+
+
+// enum RefundRequestStatus {
+//   PENDING
+//   APPROVED
+//   DECLINED
+//  COMPLETED
+//   CANCELLED
+// }
+model RefundRequest {
+  id        Int      @id @default(autoincrement())
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId Int @unique
+
+
+  reason    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  status String @default("PENDING")
+
+
+  
 }
 
 model PaymentDetails {
   id                Int      @id @default(autoincrement())
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            Int
   paymentMethod     String?
   processorProvider String   @default("STRIPE")
-  status            String   @default("PENDING")
   paymentId         String
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  // order relation
+  order Order?
 }
 
 // Review and rating

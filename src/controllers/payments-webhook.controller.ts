@@ -10,6 +10,7 @@ import logger from '../logger';
 interface StripeEventWithMetadata extends Stripe.Event {
   data: {
     object: {
+      id: string;
       metadata: {
         orderId: string;
       };
@@ -48,11 +49,16 @@ export const stripeWebhooks: ExpressHandlerWithParams<
 
   switch (event.type) {
     case 'checkout.session.completed':
-      orderService.markOrderAsConfirmed(+event.data.object.metadata.orderId);
+      orderService.markOrderAsConfirmed(+event.data.object.metadata.orderId, {
+        paymentId: event.data.object.id,
+      });
       break;
     case 'checkout.session.expired':
     case 'checkout.session.async_payment_failed':
-      orderService.deleteOrder(+event.data.object.metadata.orderId);
+      orderService.cancelOrder({
+        isSystemCall: true,
+        orderId: +event.data.object.metadata.orderId,
+      });
       break;
     default:
       logger.info(`Unhandled event type ${event.type}`);
