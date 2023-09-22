@@ -74,8 +74,8 @@ model SellerBalanceLog {
   sellerBalanceId Int
 
   // order relation
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId Int
+  order Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int?
 }
 
 model ShippingAddress {
