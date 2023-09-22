@@ -412,20 +412,24 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
 
   // send user email for confirmation
   await mailService.sendEmail({
-    email: order.user.email,
+    emails: [order.user.email],
     message: `Order #${order.id} has been completed successfully.
     Please leave a review for the products you bought
     `,
+
+    subject: 'Order completed',
   });
 
   // send email to sellers
-  await mailService.batchSendEmail({
+  await mailService.sendEmail({
     message: `Hello Seller!
 
     Order #${order.id} has been completed successfully.`,
     emails: order.orderItems.map(
       orderItem => orderItem.productVariant.product.sellerProfile!.user.email,
     ),
+
+    subject: 'Order completed',
   });
 
   // TODO: maybe send email to sellers?
@@ -505,18 +509,21 @@ export const markOrderAsConfirmed = async (
 
   // send email to user
   await mailService.sendEmail({
-    email: order.user.email,
+    emails: [order.user.email],
     message: `Order #${order.id} has been confirmed. Please confirm the delivery when you receive the package`,
+    subject: 'Order confirmed',
   });
 
   // send email to all sellers
-  await mailService.batchSendEmail({
+  await mailService.sendEmail({
     message: `Hello Seller!
     
     Order #${order.id} has been confirmed. Please prepare the package for delivery`,
     emails: order.orderItems.map(
       orderItem => orderItem.productVariant.product.sellerProfile!.user.email,
     ),
+
+    subject: 'Order confirmed',
   });
 
   return updatedOrder;
@@ -701,11 +708,12 @@ export const requestRefund = async (
 
   // send email to seller
   await mailService.sendEmail({
-    email: orderItem.productVariant.product.sellerProfile!.user.email,
+    emails: [orderItem.productVariant.product.sellerProfile!.user.email],
     message: `Hello Seller!
 
     Order #${orderItem.order.id} has been requested for refund.
     `,
+    subject: 'Order refund request',
   });
 
   return refund;

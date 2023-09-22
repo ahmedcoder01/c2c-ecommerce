@@ -1,25 +1,19 @@
-// import mailersend
+import { MAIL_DOMAIN, client } from '../lib/mail';
 
 export const sendEmail = async ({
-  email,
-  message,
-  templateId,
-}: {
-  email: string;
-  message: string;
-  templateId?: number;
-}) => {
-  // logic goes here
-};
-
-export const batchSendEmail = async ({
   emails,
+  subject,
   message,
-  templateId,
 }: {
   emails: string[];
   message: string;
+  subject: string;
   templateId?: number;
 }) => {
-  // logic goes here
+  client.messages.create(MAIL_DOMAIN, {
+    from: 'Excited User <mailgun@sandbox-123.mailgun.org>',
+    to: emails,
+    subject,
+    text: message,
+  });
 };
