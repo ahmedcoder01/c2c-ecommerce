@@ -46,6 +46,8 @@ type configType = {
     databaseUrl: string;
     stripeSecretKey: string;
     stripeWebhooksEndpointSecret: string;
+    mailAPIKey: string;
+    mailDomain: string;
   };
 
   package: {
@@ -66,6 +68,9 @@ export const config: configType = {
     databaseUrl: envVars.DATABASE_URL,
     stripeSecretKey: envVars.STRIPE_SECRET_KEY,
     stripeWebhooksEndpointSecret: envVars.STRIPE_WEBHOOKS_ENDPOINT_SECRET,
+
+    mailAPIKey: envVars.MAIL_API_KEY,
+    mailDomain: envVars.MAIL_DOMAIN,
   },
 
   package: {
@@ -87,6 +92,9 @@ const validation = Joi.object({
 
     stripeSecretKey: Joi.string().required(),
     stripeWebhooksEndpointSecret: Joi.string().required(),
+
+    mailAPIKey: Joi.string().required(),
+    mailDomain: Joi.string().required(),
   }),
   package: Joi.object({
     name: Joi.string().required(),

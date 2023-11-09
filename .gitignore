@@ -26,6 +26,9 @@ db.sqlite3-journal
 combined.log
 npm-debug.log
 error.log
+db/*
+*/db/*
+*/db
 
 
 uploads/*
@@ -37,3 +40,4 @@ uploads/*
 */._*
 */.Spotlight-V100
 */.Trashes
+
