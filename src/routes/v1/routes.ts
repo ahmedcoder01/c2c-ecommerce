@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import authRouter from './auth.route';
 import sellerProfileRouter from './seller/profile.seller.route';
-import { requireAuth, requireSellerProfile } from '../middlewares/auth.middleware';
+import { requireAuth, requireSellerProfile } from '../../middlewares/auth.middleware';
 import sellerProductRouter from './seller/product.seller.route';
 import uploadRoute from './seller/upload.seller.route';
 import cartRouter from './cart.route';

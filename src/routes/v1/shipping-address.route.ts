@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { Router, raw } from 'express';
-import validate from '../middlewares/validation.middleware';
-import { shippingAddressController } from '../controllers';
-import { shippingAddressValidations } from '../validations';
+import validate from '../../middlewares/validation.middleware';
+import { shippingAddressController } from '../../controllers';
+import { shippingAddressValidations } from '../../validations';
 
 const shippingAdressesRouter = Router();
 

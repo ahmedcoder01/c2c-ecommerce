@@ -8,7 +8,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 // import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import routes from './routes/routes';
+import routes from './routes/v1/routes';
 import HttpException from './utils/http-exception';
 import UserSwaggerDocument from '../docs/user-swagger.json';
 import SellerSwaggerDocument from '../docs/seller-swagger.json';

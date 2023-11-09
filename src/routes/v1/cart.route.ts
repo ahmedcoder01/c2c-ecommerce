@@ -1,9 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
-import validate from '../middlewares/validation.middleware';
-import { authValidations, cartValidations } from '../validations';
-import { requireAuth } from '../middlewares/auth.middleware';
-import { cartController } from '../controllers';
+import validate from '../../middlewares/validation.middleware';
+import { authValidations, cartValidations } from '../../validations';
+import { requireAuth } from '../../middlewares/auth.middleware';
+import { cartController } from '../../controllers';
 
 const cartRouter = Router();
 

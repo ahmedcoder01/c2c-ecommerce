@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Router, raw } from 'express';
-import validate from '../middlewares/validation.middleware';
-import { paymentsWebhookController } from '../controllers';
+import validate from '../../middlewares/validation.middleware';
+import { paymentsWebhookController } from '../../controllers';
 
 const paymentsWebhooks = Router();
 
