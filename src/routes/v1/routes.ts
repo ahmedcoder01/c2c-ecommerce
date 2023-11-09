@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import authRouter from './auth.route';
 import sellerRouter from './seller.route';
-import { requireAuth, requireSellerProfile } from '../middlewares/auth.middleware';
+import { requireAuth, requireSellerProfile } from '../../middlewares/auth.middleware';
 import sellerProductRouter from './product.seller.route';
 
 const api = Router();

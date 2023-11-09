@@ -1,8 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
-import validate from '../middlewares/validation.middleware';
-import { authValidations } from '../validations';
-import { authController } from '../controllers';
+import validate from '../../middlewares/validation.middleware';
+import { authValidations } from '../../validations';
+import { authController } from '../../controllers';
 
 const authRouter = Router();
 

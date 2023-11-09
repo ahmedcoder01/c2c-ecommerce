@@ -274,8 +274,6 @@
         "consumes": ["multipart/form-data"],
         "produces": ["application/json"],
 
-      
-
         "requestBody": {
           "content": {
             "multipart/form-data": {
