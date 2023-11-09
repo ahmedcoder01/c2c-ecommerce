@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */

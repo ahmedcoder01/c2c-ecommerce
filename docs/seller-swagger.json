@@ -1,0 +1,685 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "E-Commerce API",
+    "version": "1.0.0",
+    "title": "E-Commerce API",
+    "basePath": "/v1",
+
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "basePath": "/v1",
+  "schemes": ["http"],
+  "produces": ["application/json"],
+  "consumes": ["application/json"],
+
+  "paths": {
+    "/sellers/profiles/register": {
+      "post": {
+        "tags": ["Seller"],
+        "summary": "Register a seller",
+        "description": "Register a seller",
+        "operationId": "registerSeller",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Seller object that needs to be registered",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "phone": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "409": {
+            "description": "Seller already exists"
+          }
+        }
+      }
+    },
+
+    "/sellers/profiles/me": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller profile",
+        "description": "Get seller profile",
+        "operationId": "getSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/SellerProfile"
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Seller"],
+        "summary": "Delete seller profile",
+        "description": "Delete seller profile",
+        "operationId": "deleteSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/profiles": {
+      "delete": {
+        "tags": ["Seller"],
+        "summary": "Delete seller profile",
+        "description": "Delete seller profile",
+        "operationId": "deleteSellerProfile",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/profiles/{sellerId}": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller profile by id",
+        "description": "Get seller profile by id",
+        "operationId": "getSellerProfileById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "description": "ID of seller to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/SellerProfile"
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/profiles/me/balance": {
+      "get": {
+        "tags": ["Seller"],
+        "summary": "Get seller balance",
+        "description": "Get seller balance",
+        "operationId": "getSellerBalance",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "balance": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Seller not found",
+            "schema": {
+              "$ref": "#/definitions/GenericErrorModel"
+            }
+          }
+        }
+      }
+    },
+
+    "/sellers/products": {
+      "post": {
+        "tags": ["Seller Products"],
+        "summary": "Create a new product",
+        "description": "Create a new product",
+        "operationId": "createProduct",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "defaultImage": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "get": {
+        "tags": ["Seller Products"],
+        "summary": "Get all products",
+        "description": "Get all products",
+        "operationId": "getSellerProducts",
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}": {
+      "get": {
+        "description": "Get product by id",
+        "summary": "Get product by id",
+        "tags": ["Seller Products"],
+        "operationId": "getProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+
+          {
+            "name": "includeVariants",
+            "in": "query",
+            "description": "Include product variants",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product fetched"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      },
+
+      "delete": {
+        "description": "Delete product by id",
+        "summary": "Delete product by id",
+        "tags": ["Seller Products"],
+        "operationId": "deleteProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      },
+
+      "put": {
+        "description": "Update product by id",
+        "summary": "Update product by id",
+        "tags": ["Seller Products"],
+        "operationId": "updateProductById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "productCategory": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "defaultImage": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product updated"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}/variants": {
+      "post": {
+        "tags": ["Seller Products"],
+        "description": "Create a new product variant",
+        "summary": "Create a new product variant",
+        "operationId": "createProductVariant",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "stock": {
+                  "type": "integer"
+                },
+                "imageUrl": {
+                  "type": "string"
+                },
+                "variationOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}/variants/options": {
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Fetch all product variation options",
+        "summary": "Fetch all product variation options",
+        "operationId": "getProductVariantOptions",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/products/{productId}/variants/{variantId}": {
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Get product variant by id",
+        "summary": "Get product variant by id",
+        "operationId": "getProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Seller Products"],
+        "description": "Delete product variant by id",
+        "summary": "Delete product variant by id",
+        "operationId": "deleteProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "put": {
+        "tags": ["Seller Products"],
+        "description": "Update product variant by id",
+        "summary": "Update product variant by id",
+        "operationId": "updateProductVariantById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "ID of product to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "variantId",
+            "in": "path",
+            "description": "ID of product variant to return",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "stock": {
+                  "type": "integer"
+                },
+                "imageUrl": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/orders": {
+      "get": {
+        "tags": ["Seller Orders"],
+        "description": "Get all orders",
+        "summary": "Get all orders",
+        "operationId": "getSellerOrders",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "active",
+            "in": "query",
+            "description": "active orders?",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/media/sellers/upload": {
+      "post": {
+        "tags": ["Media"],
+        "summary": "Upload media",
+        "description": "Upload media",
+        "operationId": "uploadMedia",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "description": "The file to upload",
+            "required": true,
+            "type": "file"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "required": ["user"]
+    },
+
+    "GenericErrorModel": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": ["errors"]
+    },
+
+    "SellerProfile": {
+      "type": "object",
+
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "userId": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "isActivated": {
+          "type": "boolean"
+        },
+
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

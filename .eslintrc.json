@@ -27,6 +27,7 @@
     "no-console": ["error", { "allow": ["info"] }],
     "import/no-extraneous-dependencies": ["error", { "devDependencies": ["tests/prisma-mock.ts"] }],
     "import/prefer-default-export": "off",
+    "import/order": "off",
     "arrow-body-style": "off",
     "no-restricted-syntax": "off"
   },

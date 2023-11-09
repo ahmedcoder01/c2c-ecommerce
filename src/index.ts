@@ -10,13 +10,23 @@ import swaggerUi from 'swagger-ui-express';
 import cookieParser from 'cookie-parser';
 import routes from './routes/v1/routes';
 import HttpException from './utils/http-exception';
-import swaggerDocument from '../docs/swagger.json';
+import UserSwaggerDocument from '../docs/user-swagger.json';
+import SellerSwaggerDocument from '../docs/seller-swagger.json';
 import { version } from '../package.json';
 import logRequest from './middlewares/logger.middleware';
 import prisma from '../prisma/prisma-client';
 import logger from './logger';
 
+import { createServer } from 'http';
+import { Server as IOServer } from 'socket.io';
+
 const app = express();
+const httpServer = createServer(app);
+const io = new IOServer(httpServer, {
+  cors: {
+    origin: '*',
+  },
+});
 
 /**
  * App Configuration
@@ -25,8 +35,20 @@ const app = express();
 app.use(cors());
 
 app.use(cookieParser());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      // @ts-ignore
+      const url = req.originalUrl;
+      if (url.startsWith('/v1/webhooks/payments')) {
+        // @ts-ignore
+        req.rawBody = buf;
+      }
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
+
 app.use(logRequest);
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,8 +60,16 @@ app.use(express.static('public'));
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'API is running on /v1', version });
 });
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  '/user/api-docs',
+  swaggerUi.serveFiles(UserSwaggerDocument, {}),
+  swaggerUi.setup(UserSwaggerDocument),
+);
+app.use(
+  '/seller/api-docs',
+  swaggerUi.serveFiles(SellerSwaggerDocument, {}),
+  swaggerUi.setup(SellerSwaggerDocument),
+);
 
 app.get('/api-docs', (req: Request, res: Response) => {
   res.json({
@@ -89,7 +119,10 @@ const PORT = process.env.PORT || 3000;
   await prisma.$connect();
   logger.info('Connected to database');
 
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
   });
 })();
+
+export default app;
+export { io };

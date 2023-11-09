@@ -15,14 +15,20 @@ sellerRoute.post(
 );
 
 sellerRoute.get(
-  '/profile',
+  '/me',
   [requireAuth, requireSellerProfile],
   asyncHandler(sellerController.getProfile),
 );
 sellerRoute.delete(
-  '/profile',
+  '/',
   [requireAuth, requireSellerProfile],
   asyncHandler(sellerController.deleteSeller),
+);
+
+sellerRoute.get(
+  '/me/balance',
+  [requireAuth, requireSellerProfile],
+  asyncHandler(sellerController.getBalanceWithLogs),
 );
 
 //* should be protected? or not? For now, it's not protected

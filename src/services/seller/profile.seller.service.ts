@@ -1,7 +1,7 @@
 import { SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
-import prisma from '../../prisma/prisma-client';
-import HttpException from '../utils/http-exception';
+import prisma from '../../../prisma/prisma-client';
+import HttpException from '../../utils/http-exception';
 
 export const checkExistsOrThrow = async (uid: number) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
@@ -59,6 +59,11 @@ export const register = async (
           id: uid,
         },
       },
+      sellerBalance: {
+        create: {
+          balance: 0,
+        },
+      },
     },
   });
 
@@ -91,4 +96,27 @@ export const deleteProfile = async (uid: number) => {
       userId: uid,
     },
   });
+};
+
+export const getBalance = async (
+  sellerId: number,
+  {
+    includeLogs = true,
+  }: {
+    includeLogs?: boolean;
+  },
+) => {
+  const balance = await prisma.sellerBalance.findUnique({
+    where: {
+      sellerProfileId: sellerId,
+    },
+
+    select: {
+      balance: true,
+      updatedAt: true,
+      logs: includeLogs,
+    },
+  });
+
+  return balance;
 };

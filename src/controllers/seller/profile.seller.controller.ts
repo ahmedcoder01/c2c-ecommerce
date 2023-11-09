@@ -1,9 +1,9 @@
 import { SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
-import prisma from '../../prisma/prisma-client';
-import { ExpressHandler, ExpressHandlerWithParams } from '../types';
-import { authService, sellerService } from '../services';
-import HttpException from '../utils/http-exception';
+import prisma from '../../../prisma/prisma-client';
+import { ExpressHandler, ExpressHandlerWithParams } from '../../types';
+import { authService, sellerService } from '../../services';
+import HttpException from '../../utils/http-exception';
 
 // Seller CRUD
 
@@ -41,5 +41,20 @@ export const deleteSeller: ExpressHandler<unknown, unknown> = async (req, res) =
 
   res.status(httpStatus.NO_CONTENT).end();
 };
+
+// TODO: the balance controllers should be in a separate file (later)
+export const getBalanceWithLogs: ExpressHandlerWithParams<{}, unknown, { balanceDetails: any }> =
+  async (req, res) => {
+    const { sellerId } = res.locals;
+    const { includeLogs = true } = req.query;
+
+    const balanceDetails = await sellerService.getBalance(sellerId, {
+      includeLogs,
+    });
+
+    res.json({
+      balanceDetails,
+    });
+  };
 
 // Seller Product CRUD

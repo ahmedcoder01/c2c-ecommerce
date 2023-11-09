@@ -8,8 +8,22 @@ A C2C (Customer-to-Customer) E-commerce Application project. This project is a d
 
 ### Business Requirements
 
-[Business Requirements](./requirements.md)
+[Doc](./requirements.md)
+
+### Project Milestones
+
+[Doc](./milestone.md)
+
+### Top Challanges Solved
+
+[Doc](./challanges.md)
+
+## Project Architecture And Design
 
 ### ERD
 
-![ERD](./images/ERD.png)
+![ERD](./diagrams/ERD.png)
+
+### Diagrams
+
+![Deal Flow Diagram](./diagrams/deal-flow-diagram.png)

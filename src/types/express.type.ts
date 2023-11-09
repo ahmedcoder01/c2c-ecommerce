@@ -10,7 +10,7 @@ export type ExpressHandlerOptional<Req, Res> = RequestHandler<
 export type ExpressHandler<Req, Res> = RequestHandler<Record<string, string>, WithError<Res>, Req>;
 
 export type ExpressHandlerWithParams<Params, Req, Res> = RequestHandler<
-  Params,
+  Record<string, string> & Params,
   WithError<Res>,
   Req,
   any
