@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { search } from './search-engine.service';
-import { productService } from '.';
+import { sellerProductService } from '.';
 import prisma from '../../prisma/prisma-client';
 
 export const addProductToCart = async (
@@ -9,7 +9,7 @@ export const addProductToCart = async (
   quantity: number,
   cartId: number,
 ) => {
-  const productVariant = await productService.getProductVariantById(productVariantId);
+  const productVariant = await sellerProductService.getProductVariantById(productVariantId);
 
   if (!productVariant) {
     throw new Error('Product variant not found');

@@ -3,6 +3,9 @@ import httpStatus from 'http-status';
 import _ from 'lodash';
 import prisma from '../../../prisma/prisma-client';
 import HttpException from '../../utils/http-exception';
+import { PrismaTransaction } from '../../types/requests.type';
+import config from '../../config';
+import logger from '../../logger';
 
 // TODO: broken product variant duplication check
 // TODO: handle the situation of deleting a product/variant that is stored in any other tables like the cartItem, etc
@@ -346,8 +349,14 @@ export const getProductVariantById = async (variantId: number) => {
   return variant;
 };
 
-export const checkCategoryExistsOrThrow = async (category: string) => {
-  const categoryExists = await prisma.productCategory.findFirst({
+export const checkCategoryExistsOrThrow = async (
+  category: string,
+  options?: {
+    tx: PrismaTransaction;
+  },
+) => {
+  const _p = options?.tx || prisma;
+  const categoryExists = await _p.productCategory.findFirst({
     where: {
       name: category,
     },
@@ -361,8 +370,14 @@ export const checkCategoryExistsOrThrow = async (category: string) => {
   }
 };
 
-export const createCategory = async (name: string) => {
-  const category = await prisma.productCategory.upsert({
+export const createCategory = async (
+  name: string,
+  options?: {
+    tx: PrismaTransaction;
+  },
+) => {
+  const _p = options?.tx || prisma;
+  const category = await _p.productCategory.upsert({
     where: {
       name,
     },
@@ -460,4 +475,196 @@ export const updateProductVariant = async (
   });
 
   return productVariant;
+};
+
+// BIDDING PRODUCTS
+
+export const createBiddingProduct = async (
+  sellerId: number,
+  {
+    name,
+    description,
+    defaultImage,
+    category,
+    startDateTime,
+    biddingDurationHrs,
+    startingPrice,
+  }: {
+    name: string;
+    description: string;
+    defaultImage: string;
+    category: string;
+    startDateTime: Date;
+    biddingDurationHrs: number;
+    startingPrice: number;
+  },
+) => {
+  const startDate = new Date(startDateTime);
+  const endDate = new Date(startDate.getTime() + biddingDurationHrs * 60 * 60 * 1000);
+  const MIN_BIDDING_DURATION_HRS = 6;
+
+  if (biddingDurationHrs < MIN_BIDDING_DURATION_HRS) {
+    throw new HttpException(httpStatus.BAD_REQUEST, 'Bidding duration must be at least 6 hours');
+  }
+
+  const product = await prisma.$transaction(async tx => {
+    try {
+      await checkCategoryExistsOrThrow(category, { tx });
+    } catch (error) {
+      //! FOR Dev env, create category if not exists
+      if (config.variables.env === 'development') {
+        await createCategory(category, { tx });
+      } else {
+        throw error;
+      }
+    }
+
+    const _product = await tx.auctionProduct.create({
+      data: {
+        name,
+        defaultImage,
+        sellerProfile: {
+          connect: {
+            id: sellerId,
+          },
+        },
+        description,
+        productCategory: {
+          connect: {
+            name: category,
+          },
+        },
+        auctionStartDate: startDate,
+        auctionEndDate: endDate,
+        minimumBidPrice: startingPrice,
+        auctionStatus: 'PENDING',
+      },
+    });
+    return _product;
+  });
+  return product;
+};
+
+export const deleteBiddingProduct = async (bProductId: number, sellerId: number) => {
+  await prisma.$transaction(async tx => {
+    const product = await tx.auctionProduct.findFirst({
+      where: {
+        id: +bProductId,
+        sellerProfile: {
+          id: sellerId,
+        },
+      },
+      select: {
+        auctionStatus: true,
+      },
+    });
+    if (!product) throw new HttpException(httpStatus.BAD_REQUEST, 'Product does not exist');
+
+    if (product.auctionStatus === 'STARTED') {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Bidding has started. Cannot delete product');
+    }
+
+    await tx.auctionProduct.delete({
+      where: {
+        id: +bProductId,
+        sellerProfile: {
+          id: sellerId,
+        },
+      },
+    });
+  });
+};
+
+export const listBiddingProducts = async (sellerId: number) => {
+  const products = await prisma.auctionProduct.findMany({
+    where: {
+      sellerProfile: {
+        id: sellerId,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      defaultImage: true,
+      description: true,
+      auctionStartDate: true,
+      auctionEndDate: true,
+      minimumBidPrice: true,
+      auctionStatus: true,
+    },
+  });
+  return products;
+};
+
+export const getBiddingProduct = async (productId: number) => {
+  const product = await prisma.auctionProduct.findFirst({
+    where: {
+      id: +productId,
+    },
+    select: {
+      id: true,
+      name: true,
+      defaultImage: true,
+      description: true,
+      auctionStartDate: true,
+      auctionEndDate: true,
+      minimumBidPrice: true,
+      auctionStatus: true,
+    },
+  });
+  return product;
+};
+
+export const _listNotEndedBiddingProducts = async () => {
+  const products = await prisma.auctionProduct.findMany({
+    where: {
+      auctionStatus: {
+        in: ['PENDING', 'STARTED'],
+      },
+    },
+    select: {
+      id: true,
+      auctionStartDate: true,
+      auctionEndDate: true,
+      auctionStatus: true,
+    },
+  });
+  return products;
+};
+
+export const _sys = {
+  async markBiddingProductAsStarted(productId: number) {
+    try {
+      const product = await prisma.auctionProduct.update({
+        where: {
+          id: +productId,
+        },
+        data: {
+          auctionStatus: 'STARTED',
+        },
+
+        select: undefined,
+      });
+    } catch (error) {
+      logger.error("Couldn't mark bidding product as started. Could be deleted");
+    }
+  },
+
+  async markBiddingProductAsEnded(productId: number) {
+    try {
+      const product = await prisma.auctionProduct.update({
+        where: {
+          id: +productId,
+        },
+        data: {
+          auctionStatus: 'ENDED',
+        },
+
+        select: undefined,
+      });
+      // TODO: maybe detect the winner here?
+    } catch (error) {
+      logger.error("Couldn't mark bidding product as ended. Could be deleted");
+    }
+  },
 };

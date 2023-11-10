@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import config from '../config';
-import { cartService, orderService, paymentService, shippingService } from '../services';
+import { cartService, orderService, paymentService, shippingAddressService } from '../services';
 import { ExpressHandler, ExpressHandlerWithParams } from '../types';
 import HttpException from '../utils/http-exception';
 import { stripe } from '../lib/payments';
@@ -14,7 +14,7 @@ export const createOrderFromCart: ExpressHandler<
   const { shippingAddressId } = req.body;
   const { userId } = res.locals;
 
-  await shippingService.checkShippingAddressExistsOrThrow(shippingAddressId, userId);
+  await shippingAddressService.checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   const cartId = await cartService.getUserCartId(userId);
 
   // create order
@@ -55,18 +55,6 @@ export const listUserOrders: ExpressHandler<
 };
 
 //* TEMP until using webhooks
-export const confirmOrder: ExpressHandlerWithParams<{ orderId: number }, any, {}> = async (
-  req,
-  res,
-) => {
-  const { orderId } = req.params;
-
-  const order = await orderService.markOrderAsConfirmed(+orderId);
-
-  res.status(httpStatus.OK).json({
-    message: 'Order confirmed',
-  });
-};
 
 export const completeOrderAfterDelivery: ExpressHandlerWithParams<{ orderId: number }, {}, {}> =
   async (req, res) => {

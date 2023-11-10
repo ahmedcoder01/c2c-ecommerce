@@ -2,12 +2,13 @@ import { Product, ProductVariant, SellerProfile } from '@prisma/client';
 import httpStatus from 'http-status';
 import prisma from '../../../prisma/prisma-client';
 import { ExpressHandler, ExpressHandlerWithParams } from '../../types';
-import { productService, sellerService } from '../../services';
+import { sellerProductService, sellerService } from '../../services';
 import { ProductRequestVariant } from '../../services/seller/product.seller.service';
 import config from '../../config';
 import HttpException from '../../utils/http-exception';
 import { validateFields } from '../../utils/validate';
 import { productValidations } from '../../validations';
+import auctionsManager from '../../events/Auctions.event';
 
 export const createProduct: ExpressHandler<
   {
@@ -22,18 +23,18 @@ export const createProduct: ExpressHandler<
   const { name, description, category, defaultImage } = req.body;
 
   try {
-    await productService.checkCategoryExistsOrThrow(category);
+    await sellerProductService.checkCategoryExistsOrThrow(category);
   } catch (error) {
     //! FOR Dev env, create category if not exists
     if (config.variables.env === 'development') {
-      await productService.createCategory(category);
+      await sellerProductService.createCategory(category);
       return;
     }
 
     throw error;
   }
 
-  const product = await productService.createProduct(sellerId, {
+  const product = await sellerProductService.createProduct(sellerId, {
     category,
     defaultImage,
     name,
@@ -53,7 +54,7 @@ export const getSellerProducts: ExpressHandler<
 > = async (req, res) => {
   const { sellerId } = res.locals;
 
-  const products = await productService.getSellerProducts(sellerId);
+  const products = await sellerProductService.getSellerProducts(sellerId);
 
   res.status(httpStatus.OK).json({
     products,
@@ -71,9 +72,9 @@ export const createProductVariant: ExpressHandlerWithParams<
 
   const { productId } = req.params;
 
-  await productService.checkProductExistsOrThrow(productId);
+  await sellerProductService.checkProductExistsOrThrow(productId);
 
-  const productVariant = await productService.createProductVariant(productId, variant);
+  const productVariant = await sellerProductService.createProductVariant(productId, variant);
 
   res.status(httpStatus.CREATED).json({
     productVariant,
@@ -92,7 +93,7 @@ export const getProduct: ExpressHandlerWithParams<
   const { productId } = req.params;
   const { includeVariants } = req.query;
 
-  const product = await productService.getProduct(productId, {
+  const product = await sellerProductService.getProduct(productId, {
     includeVariants,
   });
 
@@ -114,7 +115,7 @@ export const getProductVariationOptions: ExpressHandlerWithParams<
 > = async (req, res) => {
   const { productId } = req.params;
 
-  const options = await productService.getProductVariationOptions(productId);
+  const options = await sellerProductService.getProductVariationOptions(productId);
 
   res.status(httpStatus.OK).json({
     options,
@@ -130,7 +131,7 @@ export const getProductVariant: ExpressHandlerWithParams<
 > = async (req, res) => {
   const { productId, variantId } = req.params;
 
-  const productVariant = await productService.getProductVariantById(variantId);
+  const productVariant = await sellerProductService.getProductVariantById(variantId);
 
   if (!productVariant) {
     throw new HttpException(httpStatus.NOT_FOUND, 'Product variant not found');
@@ -147,8 +148,8 @@ export const deleteProduct: ExpressHandlerWithParams<{ productId: number }, {}, 
 ) => {
   const { productId } = req.params;
 
-  await productService.checkProductExistsOrThrow(productId);
-  await productService.removeProduct(productId, res.locals.sellerId);
+  await sellerProductService.checkProductExistsOrThrow(productId);
+  await sellerProductService.removeProduct(productId, res.locals.sellerId);
 
   res.status(httpStatus.OK).json({
     message: 'Product deleted',
@@ -161,8 +162,8 @@ export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: number 
 ) => {
   const { variantId } = req.params;
 
-  await productService.checkProductVariantExistsOrThrow(variantId);
-  await productService.removeProductVariant(variantId, res.locals.sellerId);
+  await sellerProductService.checkProductVariantExistsOrThrow(variantId);
+  await sellerProductService.removeProductVariant(variantId, res.locals.sellerId);
 
   res.status(httpStatus.OK).json({
     message: 'Product variant deleted',
@@ -186,12 +187,12 @@ export const updateProduct: ExpressHandlerWithParams<
   const { productId } = req.params;
   const { name, description, productCategory, defaultImage } = req.body;
 
-  await productService.checkProductExistsOrThrow(productId);
+  await sellerProductService.checkProductExistsOrThrow(productId);
   if (productCategory) {
-    await productService.checkCategoryExistsOrThrow(productCategory.name);
+    await sellerProductService.checkCategoryExistsOrThrow(productCategory.name);
   }
 
-  const product = await productService.updateProduct(productId, {
+  const product = await sellerProductService.updateProduct(productId, {
     name,
     description,
     productCategory,
@@ -213,11 +214,96 @@ export const updateProductVariant: ExpressHandlerWithParams<
   const { variantId, productId } = req.params;
   const variant = req.body;
 
-  await productService.checkProductVariantExistsOrThrow(variantId);
+  await sellerProductService.checkProductVariantExistsOrThrow(variantId);
 
-  const productVariant = await productService.updateProductVariant(variantId, productId, variant);
+  const productVariant = await sellerProductService.updateProductVariant(
+    variantId,
+    productId,
+    variant,
+  );
 
   res.status(httpStatus.OK).json({
     productVariant,
+  });
+};
+
+// BIDDING PRODUCTS
+
+export const createBiddingProduct: ExpressHandler<
+  {
+    name: string;
+    description: string;
+    category: string;
+    defaultImage: string;
+    biddingDurationHrs: number;
+    startDateTime: Date;
+    startingPrice: number;
+  },
+  any
+> = async (req, res) => {
+  const { sellerId } = res.locals;
+
+  const product = await sellerProductService.createBiddingProduct(sellerId, req.body);
+
+  auctionsManager.emit('scheduleAuctionStart', {
+    aProductId: product.id,
+    startAt: product.auctionStartDate,
+  });
+
+  auctionsManager.emit('scheduleAuctionEnd', {
+    aProductId: product.id,
+    endAt: product.auctionEndDate,
+  });
+
+  res.status(httpStatus.CREATED).json({
+    product,
+  });
+};
+
+export const getSellerBiddingProducts: ExpressHandler<
+  any,
+  {
+    products: any;
+  }
+> = async (req, res) => {
+  const { sellerId } = res.locals;
+
+  const products = await sellerProductService.listBiddingProducts(sellerId);
+
+  res.status(httpStatus.OK).json({
+    products,
+  });
+};
+
+export const deleteBiddingProduct: ExpressHandlerWithParams<{ productId: number }, {}, {}> = async (
+  req,
+  res,
+) => {
+  const { productId } = req.params;
+
+  await sellerProductService.deleteBiddingProduct(productId, res.locals.sellerId);
+
+  res.status(httpStatus.OK).json({
+    message: 'Product deleted',
+  });
+};
+
+export const getBiddingProduct: ExpressHandlerWithParams<
+  { productId: number },
+  any,
+  {
+    product: any;
+  }
+> = async (req, res) => {
+  const { productId } = req.params;
+
+  const product = await sellerProductService.getBiddingProduct(productId);
+
+  if (!product) {
+    throw new HttpException(httpStatus.NOT_FOUND, 'Product not found');
+  }
+
+  res.status(httpStatus.OK).json({
+    product,
   });
 };

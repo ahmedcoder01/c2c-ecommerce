@@ -420,32 +420,7 @@
       }
     },
 
-    "/orders/{orderId}/confirm": {
-      "post": {
-        "tags": ["Orders"],
-        "summary": "Confirm order [TEMP]",
-        "description": "Confirm order [TEMP]",
-        "operationId": "confirmOrder",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "description": "ID of order to confirm",
-            "required": true,
-            "type": "integer"
-          }
-        ],
-
-        "responses": {
-          "200": {
-            "description": "Successful operation"
-          }
-        }
-      }
-    },
+   
     "/orders": {
       "get": {
         "tags": ["Orders"],

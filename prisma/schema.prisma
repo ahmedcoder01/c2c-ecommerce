@@ -1,6 +1,6 @@
 // C2C Ecommerce Application Prisma Schema
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,9 +26,12 @@ model User {
   // order relation
   orders Order[]
 
-
   // review and rating relation
   productReviews ProductReview[]
+
+  // auction bid relation
+  auctionBids AuctionBid[]
+  auctionWins AuctionProduct[]
 }
 
 model SellerProfile {
@@ -41,7 +44,8 @@ model SellerProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products Product[]
+  products        Product[]
+  auctionProducts AuctionProduct[]
 
   // seller balance relation
   sellerBalance SellerBalance?
@@ -56,8 +60,8 @@ model SellerBalance {
   logs SellerBalanceLog[]
 
   // seller profile relation
-  sellerProfile SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
-  sellerProfileId Int @unique
+  sellerProfile   SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  sellerProfileId Int           @unique
 }
 
 model SellerBalanceLog {
@@ -68,11 +72,11 @@ model SellerBalanceLog {
   updatedAt DateTime @updatedAt
 
   // seller balance relation
-  sellerBalance SellerBalance @relation(fields: [sellerBalanceId], references: [id], onDelete: Cascade)
+  sellerBalance   SellerBalance @relation(fields: [sellerBalanceId], references: [id], onDelete: Cascade)
   sellerBalanceId Int
 
   // order relation
-  order Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId Int?
 }
 
@@ -107,6 +111,9 @@ model ProductCategory {
   subCategories    ProductCategory[] @relation("SubCategory")
   parentCategory   ProductCategory?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
   parentCategoryId Int?
+
+  // auction product relation
+  auctionProducts AuctionProduct[]
 }
 
 //* entity attribute value model
@@ -120,10 +127,49 @@ model Product {
   productVariants   ProductVariant[]
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
   productCategoryId Int
-  sellerProfile     SellerProfile?    @relation(fields: [sellerProfileId], references: [id], onDelete: SetNull)
+  sellerProfile     SellerProfile?   @relation(fields: [sellerProfileId], references: [id], onDelete: SetNull)
   sellerProfileId   Int?
 
   productReviews ProductReview[]
+}
+
+enum AuctionStatus {
+  PENDING
+  STARTED
+  ENDED
+}
+
+model AuctionProduct {
+  id                Int             @id @default(autoincrement())
+  name              String
+  description       String?
+  defaultImage      String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  productCategory   ProductCategory @relation(fields: [productCategoryId], references: [id])
+  productCategoryId Int
+  sellerProfile     SellerProfile   @relation(fields: [sellerProfileId], references: [id])
+  sellerProfileId   Int
+
+  minimumBidPrice  Float
+  auctionStartDate DateTime
+  auctionEndDate   DateTime
+  auctionStatus    AuctionStatus @default(PENDING)
+  auctionBids      AuctionBid[]
+
+  winner   User? @relation(fields: [winnerId], references: [id])
+  winnerId Int?
+}
+
+model AuctionBid {
+  id               Int            @id @default(autoincrement())
+  auctionProduct   AuctionProduct @relation(fields: [auctionProductId], references: [id])
+  auctionProductId Int            @unique
+  user             User           @relation(fields: [userId], references: [id])
+  userId           Int
+  bidPrice         Float
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model ProductVariant {
@@ -131,7 +177,7 @@ model ProductVariant {
   name                String
   description         String?
   price               Float
-  stock         Int
+  stock               Int
   productVariantImage String?
   product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId           Int
@@ -153,7 +199,7 @@ model Variation {
   name              String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  productCategory   ProductCategory?   @relation(fields: [productCategoryId], references: [id], onDelete: SetNull)
+  productCategory   ProductCategory?  @relation(fields: [productCategoryId], references: [id], onDelete: SetNull)
   productCategoryId Int?
   variationOptions  VariationOption[]
 }
@@ -199,20 +245,20 @@ model CartItem {
 //   CANCELLED
 // }
 model Order {
-  id                Int             @id @default(autoincrement())
-  user              User            @relation(fields: [userId], references: [id])
-  userId            Int
-  orderItems        OrderItem[]
-  status String @default("PENDING")
-  deliveredAt       DateTime?
+  id          Int         @id @default(autoincrement())
+  user        User        @relation(fields: [userId], references: [id])
+  userId      Int
+  orderItems  OrderItem[]
+  status      String      @default("PENDING")
+  deliveredAt DateTime?
 
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: NoAction)
   shippingAddressId Int
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
-  paymentDetails PaymentDetails? @relation(fields: [paymentDetailsId], references: [id], onDelete: SetNull)
-  paymentDetailsId Int?   @unique
+  paymentDetails   PaymentDetails? @relation(fields: [paymentDetailsId], references: [id], onDelete: SetNull)
+  paymentDetailsId Int?            @unique
 
   // seller balance
   sellerBalanceLogs SellerBalanceLog[]
@@ -231,10 +277,7 @@ model OrderItem {
 
   // refund request relation
   refundRequest RefundRequest?
-
-
 }
-
 
 // enum RefundRequestStatus {
 //   PENDING
@@ -244,19 +287,15 @@ model OrderItem {
 //   CANCELLED
 // }
 model RefundRequest {
-  id        Int      @id @default(autoincrement())
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  orderItemId Int @unique
-
+  id          Int       @id @default(autoincrement())
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId Int       @unique
 
   reason    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   status String @default("PENDING")
-
-
-  
 }
 
 model PaymentDetails {

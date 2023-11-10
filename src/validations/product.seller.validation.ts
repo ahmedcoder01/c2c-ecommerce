@@ -122,3 +122,27 @@ export const updateProductVariant = {
       .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/),
   }),
 };
+
+export const createBiddingProduct = {
+  body: Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string().required(),
+    defaultImage: Joi.string(),
+    category: Joi.string().required(),
+    startDateTime: Joi.date().required(),
+    biddingDurationHrs: Joi.number().required(),
+    startingPrice: Joi.number().required(),
+  }),
+};
+
+export const getBiddingProduct = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+  }),
+};
+
+export const deleteBiddingProduct = {
+  params: Joi.object({
+    productId: Joi.number().required(),
+  }),
+};

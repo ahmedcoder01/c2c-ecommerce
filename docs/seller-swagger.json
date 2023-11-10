@@ -569,6 +569,126 @@
       }
     },
 
+    "/sellers/products/auctions": {
+      "post": {
+        "tags": ["Seller Products"],
+        "description": "Create a new auction product",
+        "summary": "Create a new auction product",
+        "operationId": "createAuctionProduct",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Product object that needs to be created",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "defaultImage": {
+                  "type": "string"
+                },
+                "biddingDurationHrs": {
+                  "type": "number"
+                },
+                "startDateTime": {
+                  "type": "string"
+                },
+                "startingPrice": {
+                  "type": "number"
+                }
+
+              }
+            }
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Get all auction products",
+        "summary": "Get all auction products",
+        "operationId": "getAuctionProducts",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
+    "/sellers/produces/auctions/{auctionProductId}": {
+      "get": {
+        "tags": ["Seller Products"],
+        "description": "Get auction product by id",
+        "summary": "Get auction product by id",
+        "operationId": "getAuctionProductById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "auctionProductId",
+            "in": "path",
+            "description": "ID of auction product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      },
+
+      "delete": {
+        "tags": ["Seller Products"],
+        "description": "Delete auction product by id",
+        "summary": "Delete auction product by id",
+        "operationId": "deleteAuctionProductById",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+
+        "parameters": [
+          {
+            "name": "auctionProductId",
+            "in": "path",
+            "description": "ID of auction product to return",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+
     "/sellers/orders": {
       "get": {
         "tags": ["Seller Orders"],

@@ -64,4 +64,25 @@ sellerProductRouter.put(
   asyncHandler(productController.updateProductVariant),
 );
 
+// BIDDING PRODUCTS
+sellerProductRouter.post(
+  '/auctions',
+  validate(productValidations.createBiddingProduct),
+  asyncHandler(productController.createBiddingProduct),
+);
+
+sellerProductRouter.get('/auctions', asyncHandler(productController.getSellerBiddingProducts));
+
+sellerProductRouter.get(
+  '/auctions/:productId',
+  validate(productValidations.getBiddingProduct),
+  asyncHandler(productController.getBiddingProduct),
+);
+
+sellerProductRouter.delete(
+  '/auctions/:productId',
+  validate(productValidations.getBiddingProduct),
+  asyncHandler(productController.deleteBiddingProduct),
+);
+
 export default sellerProductRouter;

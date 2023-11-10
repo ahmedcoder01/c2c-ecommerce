@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
-import { cartService, productService } from '../services';
+import { cartService, sellerProductService } from '../services';
 import { ExpressHandler } from '../types';
 
 export const getCartByUserId: ExpressHandler<
