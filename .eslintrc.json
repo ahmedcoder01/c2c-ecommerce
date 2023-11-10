@@ -29,7 +29,6 @@
     "arrow-body-style": "off",
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off"
-
   },
   "settings": {
     "import/resolver": {

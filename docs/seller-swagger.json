@@ -608,7 +608,6 @@
                 "startingPrice": {
                   "type": "number"
                 }
-
               }
             }
           }
