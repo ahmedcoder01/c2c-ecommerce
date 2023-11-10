@@ -3,6 +3,7 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 // import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import { Server as SocketIOServer } from 'socket.io';
 import routes from './routes/v1/routes';
 import HttpException from './utils/http-exception';
 import UserSwaggerDocument from '../docs/user-swagger.json';
@@ -12,11 +13,14 @@ import logRequest from './middlewares/logger.middleware';
 import logger from './logger';
 import prisma from '../prisma/prisma-client';
 import auctionsManager from './events/Auctions.event';
+import { SocketRegistry } from './sockets/v1';
 
 export class App {
   public app: Express;
 
   private ready: boolean;
+
+  public io: SocketIOServer | null = null;
 
   constructor() {
     this.app = express();
@@ -124,5 +128,25 @@ export class App {
 
   public async onServerStart() {
     await auctionsManager.replayRegisteredAuctions();
+  }
+
+  bindSocketIO(server: any) {
+    this.io = new SocketIOServer(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+      },
+    });
+    const socket = new SocketRegistry(this.io);
+    socket.bindEvents();
+
+    return this.io;
+  }
+
+  getSocketIO() {
+    if (!this.io) {
+      throw new Error('SocketIO not ready');
+    }
+    return this.io;
   }
 }

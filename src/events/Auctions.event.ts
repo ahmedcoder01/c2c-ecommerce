@@ -50,6 +50,7 @@ class AuctionManager extends EventEmitter {
         // TODO: broadcast to all clients
       }
     });
+
     logger.info(`AUCTIONS: Replaying ${pendingAuctions.length} auctions timers...`);
     return this;
   }

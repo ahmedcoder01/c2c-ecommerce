@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 3000;
   await app.init();
   const e = app.getApp();
   const server = http.createServer(e);
+  app.bindSocketIO(server);
 
   server.listen(PORT, async () => {
     logger.info(`Server is running on port ${PORT}`);
