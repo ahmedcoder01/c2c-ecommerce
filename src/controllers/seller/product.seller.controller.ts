@@ -19,7 +19,7 @@ export const createProduct: ExpressHandler<
   },
   any
 > = async (req, res) => {
-  const { sellerId } = res.locals;
+  const { sellerId } = req;
   const { name, description, category, defaultImage } = req.body;
 
   try {
@@ -52,7 +52,7 @@ export const getSellerProducts: ExpressHandler<
     products: any;
   }
 > = async (req, res) => {
-  const { sellerId } = res.locals;
+  const { sellerId } = req;
 
   const products = await sellerProductService.getSellerProducts(sellerId);
 
@@ -149,7 +149,7 @@ export const deleteProduct: ExpressHandlerWithParams<{ productId: number }, {}, 
   const { productId } = req.params;
 
   await sellerProductService.checkProductExistsOrThrow(productId);
-  await sellerProductService.removeProduct(productId, res.locals.sellerId);
+  await sellerProductService.removeProduct(productId, req.sellerId);
 
   res.status(httpStatus.OK).json({
     message: 'Product deleted',
@@ -163,7 +163,7 @@ export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: number 
   const { variantId } = req.params;
 
   await sellerProductService.checkProductVariantExistsOrThrow(variantId);
-  await sellerProductService.removeProductVariant(variantId, res.locals.sellerId);
+  await sellerProductService.removeProductVariant(variantId, req.sellerId);
 
   res.status(httpStatus.OK).json({
     message: 'Product variant deleted',
@@ -241,7 +241,7 @@ export const createBiddingProduct: ExpressHandler<
   },
   any
 > = async (req, res) => {
-  const { sellerId } = res.locals;
+  const { sellerId } = req;
 
   const product = await sellerProductService.createBiddingProduct(sellerId, req.body);
 
@@ -266,7 +266,7 @@ export const getSellerBiddingProducts: ExpressHandler<
     products: any;
   }
 > = async (req, res) => {
-  const { sellerId } = res.locals;
+  const { sellerId } = req;
 
   const products = await sellerProductService.listBiddingProducts(sellerId);
 
@@ -281,7 +281,7 @@ export const deleteBiddingProduct: ExpressHandlerWithParams<{ productId: number 
 ) => {
   const { productId } = req.params;
 
-  await sellerProductService.deleteBiddingProduct(productId, res.locals.sellerId);
+  await sellerProductService.deleteBiddingProduct(productId, req.sellerId);
 
   res.status(httpStatus.OK).json({
     message: 'Product deleted',

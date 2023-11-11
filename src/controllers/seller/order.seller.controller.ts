@@ -13,7 +13,7 @@ export const getSellerOrders: ExpressHandler<
     orders: any;
   }
 > = async (req, res) => {
-  const { sellerId } = res.locals;
+  const { sellerId } = req;
   const { active: isActive = 'true' } = req.query;
   // @ts-ignore
   const orders = await sellerOrderService.listSellerOrders(sellerId, isActive === 'true');

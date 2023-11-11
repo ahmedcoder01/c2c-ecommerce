@@ -11,14 +11,14 @@ export const postRegister: ExpressHandler<{ name: string; phone: string }, Selle
   req,
   res,
 ) => {
-  const profile = await sellerService.register(res.locals.userId, req.body);
+  const profile = await sellerService.register(req.userId, req.body);
 
   res.status(httpStatus.CREATED).json(profile);
 };
 
 export const getProfile: ExpressHandler<unknown, SellerProfile> = async (req, res) => {
-  await sellerService.checkExistsOrThrow(res.locals.userId);
-  const profile = await sellerService.getProfile(res.locals.userId);
+  await sellerService.checkExistsOrThrow(req.userId);
+  const profile = await sellerService.getProfile(req.userId);
 
   res.json(profile!);
 };
@@ -35,9 +35,9 @@ export const getSellerById: ExpressHandlerWithParams<{ sellerId: number }, {}, S
   };
 
 export const deleteSeller: ExpressHandler<unknown, unknown> = async (req, res) => {
-  await sellerService.checkExistsOrThrow(res.locals.userId);
+  await sellerService.checkExistsOrThrow(req.userId);
 
-  await sellerService.deleteProfile(res.locals.userId);
+  await sellerService.deleteProfile(req.userId);
 
   res.status(httpStatus.NO_CONTENT).end();
 };
@@ -45,7 +45,7 @@ export const deleteSeller: ExpressHandler<unknown, unknown> = async (req, res) =
 // TODO: the balance controllers should be in a separate file (later)
 export const getBalanceWithLogs: ExpressHandlerWithParams<{}, unknown, { balanceDetails: any }> =
   async (req, res) => {
-    const { sellerId } = res.locals;
+    const { sellerId } = req;
     const { includeLogs = true } = req.query;
 
     const balanceDetails = await sellerService.getBalance(sellerId, {

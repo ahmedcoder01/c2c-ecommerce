@@ -9,7 +9,7 @@ export const getCartByUserId: ExpressHandler<
     cart: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const cartId = await cartService.getUserCartId(userId);
   const cart = await cartService.getCartDetails(cartId);
 
@@ -24,7 +24,7 @@ export const addProductToCart: ExpressHandler<
     cartItem: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const { productVariantId, quantity = 1 } = req.body;
 
   const cartId = await cartService.getUserCartId(userId);

@@ -19,7 +19,7 @@ export const createShippingAddress: ExpressHandler<
   }
 > = async (req, res) => {
   const { address, city, country, name, phone, isDefault } = req.body;
-  const { userId } = res.locals;
+  const { userId } = req;
 
   const shippingAddress = await shippingAddressService.addShippingAddress(userId, {
     address,
@@ -42,7 +42,7 @@ export const listUserShippingAddresses: ExpressHandler<
     shippingAddresses: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const shippingAddresses = await shippingAddressService.listShippingAddressess(userId);
   res.status(httpStatus.OK).json({
     message: 'Shipping addresses fetched successfully',
@@ -57,7 +57,7 @@ export const getUserShippingAddress: ExpressHandlerWithParams<
     shippingAddress: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const { shippingAddressId } = req.params;
   const shippingAddress = await shippingAddressService.getShippingAddress(
     +shippingAddressId,
@@ -76,7 +76,7 @@ export const updateShippingAddress: ExpressHandlerWithParams<
     shippingAddress: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const { shippingAddressId } = req.params;
   const { address, city, country, name, phone, isDefault } = req.body;
   const shippingAddress = await shippingAddressService.updateShippingAddress(
@@ -102,7 +102,7 @@ export const deleteShippingAddress: ExpressHandlerWithParams<
   any,
   any
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const { shippingAddressId } = req.params;
   await shippingAddressService.deleteShippingAddress(+shippingAddressId, userId);
   res.status(httpStatus.OK).json({

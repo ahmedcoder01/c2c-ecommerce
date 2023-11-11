@@ -12,7 +12,7 @@ export const createOrderFromCart: ExpressHandler<
   }
 > = async (req, res) => {
   const { shippingAddressId } = req.body;
-  const { userId } = res.locals;
+  const { userId } = req;
 
   await shippingAddressService.checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   const cartId = await cartService.getUserCartId(userId);
@@ -46,7 +46,7 @@ export const listUserOrders: ExpressHandler<
     orders: any;
   }
 > = async (req, res) => {
-  const { userId } = res.locals;
+  const { userId } = req;
   const orders = await orderService.listUserOrders(userId);
   res.status(httpStatus.OK).json({
     message: 'Orders fetched successfully',
@@ -59,7 +59,7 @@ export const listUserOrders: ExpressHandler<
 export const completeOrderAfterDelivery: ExpressHandlerWithParams<{ orderId: number }, {}, {}> =
   async (req, res) => {
     const { orderId } = req.params;
-    const { userId } = res.locals;
+    const { userId } = req;
 
     await orderService.finalizeOrder(+orderId, userId);
 
