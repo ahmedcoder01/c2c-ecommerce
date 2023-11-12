@@ -8,13 +8,12 @@ Milestone
 - [ ] Search Engine
 - [x] Orders
 - [x] Payment Processor Integration
-- [ ] Email Notifications
+- [ ] Auctions (Bidding) [In Progress]
+- [x] Email Notifications
 - [ ] Push Notifications
 - [ ] Product Recommendation Engine (Embeddings + K-Nearest Neighbors)
 - [ ] Seller Leveling System
-
-- [ ] All Seller CRUD endpoints
-- [ ] All User CRUD endpoints
-
 - [ ] Refunds
 - [ ] Reviews
+- [ ] All Seller CRUD endpoints
+- [ ] All User CRUD endpoints

@@ -25,6 +25,13 @@ This document outlines the business requirements for a Customer-to-Customer (C2C
 - Buyers should be able to filter products by category, price, and rating.
 - Buyers should be able to sort products by price and rating.
 
+### Auctions
+
+- Sellers should be able to create an auction product.
+- Buyers should be able to bid on an auction.
+- Sellers should be able to accept a bid and close the auction.
+- Sellers should be able to update an auction (if not started yet).
+
 ### Shopping Cart
 
 - Buyers should be able to add products to a shopping cart.
