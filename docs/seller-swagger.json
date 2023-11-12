@@ -571,7 +571,7 @@
 
     "/sellers/products/auctions": {
       "post": {
-        "tags": ["Seller Products"],
+        "tags": ["Seller Products Auctions"],
         "description": "Create a new auction product",
         "summary": "Create a new auction product",
         "operationId": "createAuctionProduct",
@@ -621,7 +621,7 @@
       },
 
       "get": {
-        "tags": ["Seller Products"],
+        "tags": ["Seller Products Auctions"],
         "description": "Get all auction products",
         "summary": "Get all auction products",
         "operationId": "getAuctionProducts",
@@ -638,7 +638,7 @@
 
     "/sellers/produces/auctions/{auctionProductId}": {
       "get": {
-        "tags": ["Seller Products"],
+        "tags": ["Seller Products Auctions"],
         "description": "Get auction product by id",
         "summary": "Get auction product by id",
         "operationId": "getAuctionProductById",

@@ -23,12 +23,13 @@
       }
     ],
     "no-unused-vars": "off",
-    "no-console": ["error", { "allow": ["info"] }],
     "import/no-extraneous-dependencies": ["error", { "devDependencies": ["tests/prisma-mock.ts"] }],
     "import/prefer-default-export": "off",
     "arrow-body-style": "off",
     "no-restricted-syntax": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-param-reassign":"off",
+    "no-console": "off"
   },
   "settings": {
     "import/resolver": {

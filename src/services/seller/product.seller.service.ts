@@ -503,6 +503,10 @@ export const createBiddingProduct = async (
   const endDate = new Date(startDate.getTime() + biddingDurationHrs * 60 * 60 * 1000);
   const MIN_BIDDING_DURATION_HRS = 6;
 
+  if (startDate.getTime() < Date.now()) {
+    throw new HttpException(httpStatus.BAD_REQUEST, 'Start date must be in the future');
+  }
+
   if (biddingDurationHrs < MIN_BIDDING_DURATION_HRS) {
     throw new HttpException(httpStatus.BAD_REQUEST, 'Bidding duration must be at least 6 hours');
   }
@@ -613,58 +617,4 @@ export const getBiddingProduct = async (productId: number) => {
     },
   });
   return product;
-};
-
-export const _listNotEndedBiddingProducts = async () => {
-  const products = await prisma.auctionProduct.findMany({
-    where: {
-      auctionStatus: {
-        in: ['PENDING', 'STARTED'],
-      },
-    },
-    select: {
-      id: true,
-      auctionStartDate: true,
-      auctionEndDate: true,
-      auctionStatus: true,
-    },
-  });
-  return products;
-};
-
-export const _sys = {
-  async markBiddingProductAsStarted(productId: number) {
-    try {
-      const product = await prisma.auctionProduct.update({
-        where: {
-          id: +productId,
-        },
-        data: {
-          auctionStatus: 'STARTED',
-        },
-
-        select: undefined,
-      });
-    } catch (error) {
-      logger.error("Couldn't mark bidding product as started. Could be deleted");
-    }
-  },
-
-  async markBiddingProductAsEnded(productId: number) {
-    try {
-      const product = await prisma.auctionProduct.update({
-        where: {
-          id: +productId,
-        },
-        data: {
-          auctionStatus: 'ENDED',
-        },
-
-        select: undefined,
-      });
-      // TODO: maybe detect the winner here?
-    } catch (error) {
-      logger.error("Couldn't mark bidding product as ended. Could be deleted");
-    }
-  },
 };

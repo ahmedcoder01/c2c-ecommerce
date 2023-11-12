@@ -150,12 +150,11 @@ model AuctionProduct {
   productCategoryId Int
   sellerProfile     SellerProfile   @relation(fields: [sellerProfileId], references: [id])
   sellerProfileId   Int
-
-  minimumBidPrice  Float
-  auctionStartDate DateTime
-  auctionEndDate   DateTime
-  auctionStatus    AuctionStatus @default(PENDING)
-  auctionBids      AuctionBid[]
+  minimumBidPrice   Float
+  auctionStartDate  DateTime
+  auctionEndDate    DateTime
+  auctionStatus     AuctionStatus   @default(PENDING)
+  auctionBids       AuctionBid[]
 
   winner   User? @relation(fields: [winnerId], references: [id])
   winnerId Int?
@@ -164,7 +163,7 @@ model AuctionProduct {
 model AuctionBid {
   id               Int            @id @default(autoincrement())
   auctionProduct   AuctionProduct @relation(fields: [auctionProductId], references: [id])
-  auctionProductId Int            @unique
+  auctionProductId Int
   user             User           @relation(fields: [userId], references: [id])
   userId           Int
   bidPrice         Float

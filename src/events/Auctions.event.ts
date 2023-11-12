@@ -1,6 +1,6 @@
 import { EventEmitter } from 'stream';
 import logger from '../logger';
-import { sellerProductService } from '../services';
+import { auctionService } from '../services';
 import { TimerManager } from '../utils/Timer.util';
 
 type AuctionsEventTypes = 'scheduleAuctionStart' | 'scheduleAuctionEnd';
@@ -22,7 +22,7 @@ class AuctionManager extends EventEmitter {
   }
 
   async replayRegisteredAuctions(): Promise<this> {
-    const pendingAuctions = await sellerProductService._listNotEndedBiddingProducts();
+    const pendingAuctions = await auctionService._sys.listNotEndedBiddingProducts();
 
     pendingAuctions.forEach(product => {
       const now = new Date();
@@ -30,7 +30,7 @@ class AuctionManager extends EventEmitter {
       const hasAlreadyEnded = new Date(product.auctionEndDate) <= now;
 
       if (hasAlreadyStarted && !hasAlreadyEnded) {
-        sellerProductService._sys.markBiddingProductAsStarted(product.id);
+        auctionService._sys.markBiddingProductAsStarted(product.id);
         this.emit('scheduleAuctionEnd', {
           aProductId: product.id,
           endAt: product.auctionEndDate,
@@ -46,7 +46,7 @@ class AuctionManager extends EventEmitter {
           endAt: product.auctionEndDate,
         });
       } else if (hasAlreadyStarted && hasAlreadyEnded) {
-        sellerProductService._sys.markBiddingProductAsEnded(product.id);
+        auctionService._sys.markBiddingProductAsEnded(product.id);
         // TODO: broadcast to all clients
       }
     });
@@ -67,7 +67,7 @@ auctionsManager.on(
       new Date(startAt).getTime() - Date.now(),
       () => {
         logger.info(`AUCTIONS: Auction ${aProductId} started`);
-        sellerProductService._sys.markBiddingProductAsStarted(aProductId);
+        auctionService._sys.markBiddingProductAsStarted(aProductId);
       },
     );
   },
@@ -82,7 +82,7 @@ auctionsManager.on(
       new Date(endAt).getTime() - Date.now(),
       async () => {
         logger.info(`AUCTIONS: Auction ${aProductId} ended`);
-        await sellerProductService._sys.markBiddingProductAsEnded(aProductId);
+        await auctionService._sys.markBiddingProductAsEnded(aProductId);
       },
     );
   },

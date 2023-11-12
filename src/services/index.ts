@@ -1,6 +1,7 @@
 export * as authService from './auth.service';
 export * as sellerService from './seller/profile.seller.service';
 export * as sellerProductService from './seller/product.seller.service';
+export * as auctionService from './auction.service';
 export * as cartService from './cart.service';
 export * as orderService from './order.service';
 export * as sellerOrderService from './seller/order.seller.service';

@@ -1,9 +1,10 @@
 import httpStatus from 'http-status';
 import asyncHandler from 'express-async-handler';
 import cookie from 'cookie';
+import { Socket } from 'socket.io';
 import { ExpressHandler } from '../types';
 import { verifyAccessToken } from '../services/auth.service';
-import { sellerService } from '../services';
+import { authService, sellerService } from '../services';
 import HttpException from '../utils/http-exception';
 
 // eslint-disable-next-line import/prefer-default-export, consistent-return
@@ -24,6 +25,14 @@ export const requireAuth: ExpressHandler<{}, {}> = asyncHandler(async (req, res,
       userId: number;
       email: string;
     } = verifyAccessToken(token);
+
+    // check if user exists
+    try {
+      await authService.checkUserExistsByIdOrThrow(data.userId);
+    } catch (error) {
+      res.clearCookie('access-token').clearCookie('refresh-token');
+      return next(error);
+    }
 
     req.userId = data.userId;
     req.email = data.email;
@@ -47,3 +56,26 @@ export const requireSellerProfile: ExpressHandler<{}, {}> = asyncHandler(async (
 
   next();
 });
+
+export const requireAuthIO = (socket: Socket, next: (err?: Error) => void) => {
+  const token = cookie.parse(socket.handshake.headers.cookie ?? '')?.['access-token'];
+
+  if (!token) {
+    return next(new Error('Unauthorized'));
+  }
+
+  try {
+    // @ts-ignore
+    const data: {
+      userId: number;
+      email: string;
+    } = verifyAccessToken(token);
+
+    socket.data.userId = data.userId;
+    socket.data.email = data.email;
+    return next();
+  } catch (error) {
+    console.log(error);
+    return next(new Error('Unauthorized'));
+  }
+};

@@ -34,7 +34,7 @@ export const signup: ExpressHandler<SignupBody, AuthResponse> = async (req, res)
     userId: user.id,
   };
 
-  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const accessToken = authService.signAccessToken(jwtPayload, '4h');
   const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
   res
@@ -62,7 +62,7 @@ export const login: ExpressHandler<LoginBody, AuthResponse> = async (req, res) =
     email: user.email,
     userId: user.id,
   };
-  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const accessToken = authService.signAccessToken(jwtPayload, '4h');
   const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
   res
@@ -106,7 +106,7 @@ export const refresh: ExpressHandler<{}, {}> = async (req, res) => {
     userId: data.userId,
   };
 
-  const accessToken = authService.signAccessToken(jwtPayload, '1h');
+  const accessToken = authService.signAccessToken(jwtPayload, '4h');
   const refreshToken = authService.signRefreshToken(jwtPayload, '7d');
 
   res
