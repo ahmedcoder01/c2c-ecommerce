@@ -6,6 +6,7 @@ import HttpException from '../../utils/http-exception';
 import { PrismaTransaction } from '../../types/requests.type';
 import config from '../../config';
 import logger from '../../logger';
+import auctionsManager from '../../events/Auctions.event';
 
 // TODO: broken product variant duplication check
 // TODO: handle the situation of deleting a product/variant that is stored in any other tables like the cartItem, etc
@@ -19,6 +20,13 @@ export interface ProductRequestVariant {
   price: number;
   stock: number;
   imageUrl: string;
+
+  hasAuctionMethod?: boolean;
+  auction?: {
+    startDateTime: Date;
+    biddingDurationHrs: number;
+    startingPrice: number;
+  };
 
   variationOptions: VariationOption[];
 }
@@ -214,8 +222,12 @@ export const checkProductVariantIsUniqueOrThrow = async (
     key: number;
     value: number;
   }[],
+  options?: {
+    tx: PrismaTransaction;
+  },
 ) => {
-  const existingVariants = await prisma.productVariant.findMany({
+  const _p = options?.tx || prisma;
+  const existingVariants = await _p.productVariant.findMany({
     where: {
       productId: +productId,
     },
@@ -266,58 +278,136 @@ export const createProductVariant = async (
   productId: number,
   variantInfo: ProductRequestVariant,
 ) => {
-  const product = await getProduct(productId);
-  const productCategoryName = product?.productCategory.name;
-
-  // Prepare variation keys and options
-  const variantKeysAndValues = await Promise.all(
-    variantInfo.variationOptions.map(async option => {
-      const keyRecord = await prisma.variation.upsert({
-        where: { name: option.name },
-        update: {},
-        create: {
-          name: option.name,
-          productCategory: { connect: { name: productCategoryName } },
+  const variant = await prisma.$transaction(async tx => {
+    const product = await tx.product.findFirst({
+      where: {
+        id: +productId,
+      },
+      select: {
+        productCategory: {
+          select: {
+            name: true,
+          },
         },
-        select: { id: true },
-      });
+      },
+    });
 
-      let valueRecord = await prisma.variationOption.findFirst({
-        where: { variation: { id: keyRecord.id }, value: option.value },
-        select: { id: true },
-      });
+    const productCategoryName = product?.productCategory.name;
 
-      if (!valueRecord) {
-        valueRecord = await prisma.variationOption.create({
-          data: {
-            variation: { connect: { id: keyRecord.id } },
-            value: option.value,
+    // Prepare variation keys and options
+    const variantKeysAndValues = await Promise.all(
+      variantInfo.variationOptions.map(async option => {
+        const keyRecord = await tx.variation.upsert({
+          where: { name: option.name },
+          update: {},
+          create: {
+            name: option.name,
+            productCategory: { connect: { name: productCategoryName } },
           },
           select: { id: true },
         });
+
+        let valueRecord = await tx.variationOption.findFirst({
+          where: { variation: { id: keyRecord.id }, value: option.value },
+          select: { id: true },
+        });
+
+        if (!valueRecord) {
+          valueRecord = await tx.variationOption.create({
+            data: {
+              variation: { connect: { id: keyRecord.id } },
+              value: option.value,
+            },
+            select: { id: true },
+          });
+        }
+
+        return { key: keyRecord.id, value: valueRecord.id };
+      }),
+    );
+
+    await checkProductVariantIsUniqueOrThrow(productId, variantKeysAndValues, { tx });
+
+    const { startDateTime, biddingDurationHrs, startingPrice } = variantInfo.auction || {};
+    const isValidAuction =
+      startDateTime && biddingDurationHrs !== undefined && startingPrice !== undefined;
+
+    let endDate;
+
+    if (variantInfo.hasAuctionMethod && !isValidAuction) {
+      throw new HttpException(httpStatus.BAD_REQUEST, 'Invalid auction info');
+    }
+
+    if (variantInfo.hasAuctionMethod && isValidAuction) {
+      if (biddingDurationHrs < 6) {
+        throw new HttpException(
+          httpStatus.BAD_REQUEST,
+          'Bidding duration must be at least 6 hours',
+        );
       }
 
-      return { key: keyRecord.id, value: valueRecord.id };
-    }),
-  );
+      if (startDateTime.getTime() < Date.now()) {
+        throw new HttpException(httpStatus.BAD_REQUEST, 'Start date must be in the future');
+      }
 
-  await checkProductVariantIsUniqueOrThrow(productId, variantKeysAndValues);
+      endDate = new Date(startDateTime.getTime() + biddingDurationHrs * 60 * 60 * 1000);
+    }
 
-  const variant = await prisma.productVariant.create({
-    data: {
-      name: variantInfo.name,
-      price: variantInfo.price,
-      stock: variantInfo.stock,
-      productVariantImage: variantInfo.imageUrl,
-      product: { connect: { id: productId } },
-      variationOptions: {
-        connect: variantKeysAndValues.map(({ key, value }) => ({
-          id: value,
-          variation: { id: key },
-        })),
+    const _variant = await tx.productVariant.create({
+      data: {
+        name: variantInfo.name,
+        price: variantInfo.price,
+        stock: variantInfo.stock,
+        productVariantImage: variantInfo.imageUrl,
+        product: { connect: { id: productId } },
+
+        hasAuctionOption: variantInfo.hasAuctionMethod,
+        ...(isValidAuction &&
+          variantInfo.hasAuctionMethod && {
+            auction: {
+              create: {
+                auctionStartDate: variantInfo.auction?.startDateTime as Date,
+                auctionEndDate: endDate as Date,
+                minimumBidPrice: variantInfo.auction?.startingPrice as number,
+              },
+            },
+          }),
+
+        variationOptions: {
+          connect: variantKeysAndValues.map(({ key, value }) => ({
+            id: value,
+            variation: { id: key },
+          })),
+        },
       },
-    },
+
+      include: {
+        auction: {
+          select: {
+            id: true,
+            auctionStartDate: true,
+            auctionEndDate: true,
+            auctionStatus: true,
+          },
+        },
+      },
+    });
+
+    return _variant;
   });
+
+  if (!variant.hasAuctionOption) return variant;
+
+  auctionsManager.emit('scheduleAuctionStart', {
+    auctionId: variant.auction!.id,
+    startAt: variant.auction!.auctionStartDate,
+  });
+
+  auctionsManager.emit('scheduleAuctionEnd', {
+    auctionId: variant.auction!.id,
+    endAt: variant.auction!.auctionEndDate,
+  });
+
   return variant;
 };
 
@@ -475,146 +565,4 @@ export const updateProductVariant = async (
   });
 
   return productVariant;
-};
-
-// BIDDING PRODUCTS
-
-export const createBiddingProduct = async (
-  sellerId: number,
-  {
-    name,
-    description,
-    defaultImage,
-    category,
-    startDateTime,
-    biddingDurationHrs,
-    startingPrice,
-  }: {
-    name: string;
-    description: string;
-    defaultImage: string;
-    category: string;
-    startDateTime: Date;
-    biddingDurationHrs: number;
-    startingPrice: number;
-  },
-) => {
-  const startDate = new Date(startDateTime);
-  const endDate = new Date(startDate.getTime() + biddingDurationHrs * 60 * 60 * 1000);
-  const MIN_BIDDING_DURATION_HRS = 6;
-
-  if (startDate.getTime() < Date.now()) {
-    throw new HttpException(httpStatus.BAD_REQUEST, 'Start date must be in the future');
-  }
-
-  if (biddingDurationHrs < MIN_BIDDING_DURATION_HRS) {
-    throw new HttpException(httpStatus.BAD_REQUEST, 'Bidding duration must be at least 6 hours');
-  }
-
-  const product = await prisma.$transaction(async tx => {
-    try {
-      await checkCategoryExistsOrThrow(category, { tx });
-    } catch (error) {
-      //! FOR Dev env, create category if not exists
-      if (config.variables.env === 'development') {
-        await createCategory(category, { tx });
-      } else {
-        throw error;
-      }
-    }
-
-    const _product = await tx.auctionProduct.create({
-      data: {
-        name,
-        defaultImage,
-        sellerProfile: {
-          connect: {
-            id: sellerId,
-          },
-        },
-        description,
-        productCategory: {
-          connect: {
-            name: category,
-          },
-        },
-        auctionStartDate: startDate,
-        auctionEndDate: endDate,
-        minimumBidPrice: startingPrice,
-        auctionStatus: 'PENDING',
-      },
-    });
-    return _product;
-  });
-  return product;
-};
-
-export const deleteBiddingProduct = async (bProductId: number, sellerId: number) => {
-  await prisma.$transaction(async tx => {
-    const product = await tx.auctionProduct.findFirst({
-      where: {
-        id: +bProductId,
-        sellerProfile: {
-          id: sellerId,
-        },
-      },
-      select: {
-        auctionStatus: true,
-      },
-    });
-    if (!product) throw new HttpException(httpStatus.BAD_REQUEST, 'Product does not exist');
-
-    if (product.auctionStatus === 'STARTED') {
-      throw new HttpException(httpStatus.BAD_REQUEST, 'Bidding has started. Cannot delete product');
-    }
-
-    await tx.auctionProduct.delete({
-      where: {
-        id: +bProductId,
-        sellerProfile: {
-          id: sellerId,
-        },
-      },
-    });
-  });
-};
-
-export const listBiddingProducts = async (sellerId: number) => {
-  const products = await prisma.auctionProduct.findMany({
-    where: {
-      sellerProfile: {
-        id: sellerId,
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      defaultImage: true,
-      description: true,
-      auctionStartDate: true,
-      auctionEndDate: true,
-      minimumBidPrice: true,
-      auctionStatus: true,
-    },
-  });
-  return products;
-};
-
-export const getBiddingProduct = async (productId: number) => {
-  const product = await prisma.auctionProduct.findFirst({
-    where: {
-      id: +productId,
-    },
-    select: {
-      id: true,
-      name: true,
-      defaultImage: true,
-      description: true,
-      auctionStartDate: true,
-      auctionEndDate: true,
-      minimumBidPrice: true,
-      auctionStatus: true,
-    },
-  });
-  return product;
 };

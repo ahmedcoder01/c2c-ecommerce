@@ -31,7 +31,7 @@ model User {
 
   // auction bid relation
   auctionBids AuctionBid[]
-  auctionWins AuctionProduct[]
+  auctionWins Auction[]
 }
 
 model SellerProfile {
@@ -44,8 +44,7 @@ model SellerProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  products        Product[]
-  auctionProducts AuctionProduct[]
+  products Product[]
 
   // seller balance relation
   sellerBalance SellerBalance?
@@ -111,9 +110,6 @@ model ProductCategory {
   subCategories    ProductCategory[] @relation("SubCategory")
   parentCategory   ProductCategory?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
   parentCategoryId Int?
-
-  // auction product relation
-  auctionProducts AuctionProduct[]
 }
 
 //* entity attribute value model
@@ -139,51 +135,54 @@ enum AuctionStatus {
   ENDED
 }
 
-model AuctionProduct {
-  id                Int             @id @default(autoincrement())
-  name              String
-  description       String?
-  defaultImage      String?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  productCategory   ProductCategory @relation(fields: [productCategoryId], references: [id])
-  productCategoryId Int
-  sellerProfile     SellerProfile   @relation(fields: [sellerProfileId], references: [id])
-  sellerProfileId   Int
-  minimumBidPrice   Float
-  auctionStartDate  DateTime
-  auctionEndDate    DateTime
-  auctionStatus     AuctionStatus   @default(PENDING)
-  auctionBids       AuctionBid[]
+model Auction {
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  minimumBidPrice  Float
+  auctionStartDate DateTime
+  auctionEndDate   DateTime
+
+  productVariantId Int            @unique
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  auctionStatus AuctionStatus @default(PENDING)
+  auctionBids   AuctionBid[]
 
   winner   User? @relation(fields: [winnerId], references: [id])
   winnerId Int?
 }
 
 model AuctionBid {
-  id               Int            @id @default(autoincrement())
-  auctionProduct   AuctionProduct @relation(fields: [auctionProductId], references: [id])
-  auctionProductId Int
-  user             User           @relation(fields: [userId], references: [id])
-  userId           Int
-  bidPrice         Float
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id        Int      @id @default(autoincrement())
+  auction   Auction  @relation(fields: [auctionId], references: [id])
+  auctionId Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  bidPrice  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bidPrice])
 }
 
 model ProductVariant {
-  id                  Int               @id @default(autoincrement())
+  id                  Int     @id @default(autoincrement())
   name                String
   description         String?
   price               Float
   stock               Int
   productVariantImage String?
-  product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product             Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId           Int
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+
+  hasAuctionOption Boolean  @default(false)
+  auction          Auction?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   // many to many relation with variation options
-  variationOptions    VariationOption[]
+  variationOptions VariationOption[]
 
   // cart items relation
   cartItems CartItem[]
@@ -237,18 +236,20 @@ model CartItem {
 // Orders
 
 //* DISABLE THIS JUST BECAUSE ENUM IS NOT SUPPORTED IN SQLITE
-// enum OrderStatus {
-//   PENDING
-//   CONFIRMED
-//   COMPLETED
-//   CANCELLED
-// }
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
 model Order {
-  id          Int         @id @default(autoincrement())
-  user        User        @relation(fields: [userId], references: [id])
-  userId      Int
-  orderItems  OrderItem[]
-  status      String      @default("PENDING")
+  id         Int         @id @default(autoincrement())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     Int
+  orderItems OrderItem[]
+
+  status      OrderStatus @default(PENDING)
   deliveredAt DateTime?
 
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: NoAction)

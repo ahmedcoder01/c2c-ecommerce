@@ -1,23 +1,22 @@
 /* eslint-disable no-await-in-loop */
 
-// ! can a seller buy from himself?
 import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
-import { cartService, mailService } from '.';
+import { cartService, mailService, paymentService, shippingAddressService } from '.';
 import HttpException from '../utils/http-exception';
-
-// USER SPECIFIC
+import config from '../config';
 
 export const createOrderFromCart = async ({
-  cartId,
   userId,
   shippingAddressId,
 }: {
-  cartId: number;
   userId: number;
   shippingAddressId: number;
 }) => {
-  const order = await prisma.$transaction(async tx => {
+  await shippingAddressService.checkShippingAddressExistsOrThrow(shippingAddressId, userId);
+  const cartId = await cartService.getUserCartId(userId);
+
+  const { order, session } = await prisma.$transaction(async tx => {
     const cart = await tx.cart.findUnique({
       where: {
         id: cartId,
@@ -144,10 +143,23 @@ export const createOrderFromCart = async ({
       },
     });
 
-    return _order;
+    // create checkout session
+    const _session = await paymentService.generateOrderCheckoutSession({
+      successUrl: config.variables.stripeSuccessUrl,
+      cancelUrl: config.variables.stripeCancelUrl,
+      orderDetails: _order,
+    });
+
+    return {
+      order: _order,
+      session: _session,
+    };
   });
 
-  return order;
+  return {
+    order,
+    session,
+  };
 };
 
 export const createOrderFromProductVariant = async ({

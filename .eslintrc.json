@@ -29,7 +29,8 @@
     "no-restricted-syntax": "off",
     "no-underscore-dangle": "off",
     "no-param-reassign":"off",
-    "no-console": "off"
+    "no-console": "off",
+    "no-useless-return": "off"
   },
   "settings": {
     "import/resolver": {

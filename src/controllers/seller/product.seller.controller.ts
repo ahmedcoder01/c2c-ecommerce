@@ -65,7 +65,7 @@ export const createProductVariant: ExpressHandlerWithParams<
   { productId: number },
   ProductRequestVariant,
   {
-    productVariant: ProductVariant;
+    productVariant: any;
   }
 > = async (req, res) => {
   const variant = req.body;
@@ -224,86 +224,5 @@ export const updateProductVariant: ExpressHandlerWithParams<
 
   res.status(httpStatus.OK).json({
     productVariant,
-  });
-};
-
-// BIDDING PRODUCTS
-
-export const createBiddingProduct: ExpressHandler<
-  {
-    name: string;
-    description: string;
-    category: string;
-    defaultImage: string;
-    biddingDurationHrs: number;
-    startDateTime: Date;
-    startingPrice: number;
-  },
-  any
-> = async (req, res) => {
-  const { sellerId } = req;
-
-  const product = await sellerProductService.createBiddingProduct(sellerId, req.body);
-
-  auctionsManager.emit('scheduleAuctionStart', {
-    aProductId: product.id,
-    startAt: product.auctionStartDate,
-  });
-
-  auctionsManager.emit('scheduleAuctionEnd', {
-    aProductId: product.id,
-    endAt: product.auctionEndDate,
-  });
-
-  res.status(httpStatus.CREATED).json({
-    product,
-  });
-};
-
-export const getSellerBiddingProducts: ExpressHandler<
-  any,
-  {
-    products: any;
-  }
-> = async (req, res) => {
-  const { sellerId } = req;
-
-  const products = await sellerProductService.listBiddingProducts(sellerId);
-
-  res.status(httpStatus.OK).json({
-    products,
-  });
-};
-
-export const deleteBiddingProduct: ExpressHandlerWithParams<{ productId: number }, {}, {}> = async (
-  req,
-  res,
-) => {
-  const { productId } = req.params;
-
-  await sellerProductService.deleteBiddingProduct(productId, req.sellerId);
-
-  res.status(httpStatus.OK).json({
-    message: 'Product deleted',
-  });
-};
-
-export const getBiddingProduct: ExpressHandlerWithParams<
-  { productId: number },
-  any,
-  {
-    product: any;
-  }
-> = async (req, res) => {
-  const { productId } = req.params;
-
-  const product = await sellerProductService.getBiddingProduct(productId);
-
-  if (!product) {
-    throw new HttpException(httpStatus.NOT_FOUND, 'Product not found');
-  }
-
-  res.status(httpStatus.OK).json({
-    product,
   });
 };

@@ -13,7 +13,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 (async () => {
-  logger.info('Connected to database');
   const app = new App();
   await app.init();
   const e = app.getApp();

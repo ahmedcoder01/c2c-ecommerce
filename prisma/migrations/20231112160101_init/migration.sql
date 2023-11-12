@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "AuctionStatus" AS ENUM ('PENDING', 'STARTED', 'ENDED');
 
+-- CreateEnum
+CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
@@ -93,28 +96,24 @@ CREATE TABLE "Product" (
 );
 
 -- CreateTable
-CREATE TABLE "AuctionProduct" (
+CREATE TABLE "Auction" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "defaultImage" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "productCategoryId" INTEGER NOT NULL,
-    "sellerProfileId" INTEGER NOT NULL,
     "minimumBidPrice" DOUBLE PRECISION NOT NULL,
     "auctionStartDate" TIMESTAMP(3) NOT NULL,
     "auctionEndDate" TIMESTAMP(3) NOT NULL,
+    "productVariantId" INTEGER NOT NULL,
     "auctionStatus" "AuctionStatus" NOT NULL DEFAULT 'PENDING',
     "winnerId" INTEGER,
 
-    CONSTRAINT "AuctionProduct_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Auction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "AuctionBid" (
     "id" SERIAL NOT NULL,
-    "auctionProductId" INTEGER NOT NULL,
+    "auctionId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "bidPrice" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -132,6 +131,7 @@ CREATE TABLE "ProductVariant" (
     "stock" INTEGER NOT NULL,
     "productVariantImage" TEXT,
     "productId" INTEGER NOT NULL,
+    "hasAuctionOption" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -186,7 +186,7 @@ CREATE TABLE "CartItem" (
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
     "deliveredAt" TIMESTAMP(3),
     "shippingAddressId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -265,7 +265,7 @@ CREATE UNIQUE INDEX "SellerBalance_sellerProfileId_key" ON "SellerBalance"("sell
 CREATE UNIQUE INDEX "ProductCategory_name_key" ON "ProductCategory"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AuctionBid_auctionProductId_key" ON "AuctionBid"("auctionProductId");
+CREATE UNIQUE INDEX "Auction_productVariantId_key" ON "Auction"("productVariantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Variation_name_key" ON "Variation"("name");
@@ -310,16 +310,13 @@ ALTER TABLE "Product" ADD CONSTRAINT "Product_productCategoryId_fkey" FOREIGN KE
 ALTER TABLE "Product" ADD CONSTRAINT "Product_sellerProfileId_fkey" FOREIGN KEY ("sellerProfileId") REFERENCES "SellerProfile"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AuctionProduct" ADD CONSTRAINT "AuctionProduct_productCategoryId_fkey" FOREIGN KEY ("productCategoryId") REFERENCES "ProductCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Auction" ADD CONSTRAINT "Auction_productVariantId_fkey" FOREIGN KEY ("productVariantId") REFERENCES "ProductVariant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AuctionProduct" ADD CONSTRAINT "AuctionProduct_sellerProfileId_fkey" FOREIGN KEY ("sellerProfileId") REFERENCES "SellerProfile"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Auction" ADD CONSTRAINT "Auction_winnerId_fkey" FOREIGN KEY ("winnerId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AuctionProduct" ADD CONSTRAINT "AuctionProduct_winnerId_fkey" FOREIGN KEY ("winnerId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "AuctionBid" ADD CONSTRAINT "AuctionBid_auctionProductId_fkey" FOREIGN KEY ("auctionProductId") REFERENCES "AuctionProduct"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "AuctionBid" ADD CONSTRAINT "AuctionBid_auctionId_fkey" FOREIGN KEY ("auctionId") REFERENCES "Auction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AuctionBid" ADD CONSTRAINT "AuctionBid_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

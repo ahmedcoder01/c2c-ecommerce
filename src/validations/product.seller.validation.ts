@@ -44,6 +44,18 @@ export const createProductVariant = {
     name: Joi.string().required(),
     price: Joi.number().required(),
     stock: Joi.number().required(),
+    hasAuctionMethod: Joi.boolean().required(),
+    auction: Joi.object()
+      .keys({
+        startDateTime: Joi.date().required(),
+        biddingDurationHrs: Joi.number().required(),
+        startingPrice: Joi.number().required(),
+      })
+      .when('hasAuctionMethod', {
+        is: true,
+        then: Joi.required(),
+      }),
+
     imageUrl: Joi.string()
       .regex(/^((https)?(:\/\/)?.*\.(?:png|jpg|jpeg|gif|svg|webp))|(\/uploads\/.*)$/)
       .optional(),

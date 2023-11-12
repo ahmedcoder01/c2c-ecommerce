@@ -2,6 +2,8 @@ import * as SocketIO from 'socket.io';
 import { SocketIOHandler } from './socketHandler';
 import { clientEmitted, serverEmitted } from '../events';
 import { auctionService } from '../../../services';
+import auctionsManager from '../../../events/Auctions.event';
+import logger from '../../../logger';
 
 export class AuctionHandler implements SocketIOHandler {
   private socket: SocketIO.Socket;
@@ -16,6 +18,16 @@ export class AuctionHandler implements SocketIOHandler {
   handle() {
     this.socket.on(clientEmitted.AUCTION_JOIN, this.joinAuction.bind(this));
     this.socket.on(clientEmitted.AUCTION_BID, this.bid.bind(this));
+
+    auctionsManager.on('broadcastAuctionStart', ({ auctionId }) => {
+      logger.info(`Broadcasting auction start for auction ${auctionId}`);
+      this.io.to(auctionId.toString()).emit(serverEmitted.AUCTION_START);
+    });
+
+    auctionsManager.on('broadcastAuctionEnd', ({ auctionId }) => {
+      logger.info(`Broadcasting auction end for auction ${auctionId}`);
+      this.io.to(auctionId.toString()).emit(serverEmitted.AUCTION_END);
+    });
   }
 
   private async joinAuction(auctionId: string) {
@@ -24,10 +36,10 @@ export class AuctionHandler implements SocketIOHandler {
       return this.socket.emit('error', { message: 'Invalid Data' });
     }
     // check if auction product exists
-    const productExists = await auctionService.isAuctionProductExists(_auctionId);
+    const productExists = await auctionService.isAuctionExists(_auctionId);
 
     if (!productExists) {
-      return this.socket.emit('error', { message: 'Product not found' });
+      return this.socket.emit('error', { message: 'Auction not found' });
     }
 
     if (this.socket.data.auctionId) {
@@ -38,7 +50,7 @@ export class AuctionHandler implements SocketIOHandler {
     return true;
   }
 
-  private async bid(bid: string) {
+  private async bid(bid: string, cb: Function) {
     const { userId } = this.socket.data;
     if (Number.isNaN(+bid)) {
       return this.socket.emit('error', { message: 'Invalid Data' });
@@ -54,8 +66,9 @@ export class AuctionHandler implements SocketIOHandler {
         userId,
         bidAmount: +bid,
       });
+
+      cb({ success: true });
     } catch (error: any) {
-      console.log(error);
       return this.socket.emit('error', { message: error.message });
     }
 

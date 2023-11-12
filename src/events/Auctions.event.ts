@@ -3,7 +3,11 @@ import logger from '../logger';
 import { auctionService } from '../services';
 import { TimerManager } from '../utils/Timer.util';
 
-type AuctionsEventTypes = 'scheduleAuctionStart' | 'scheduleAuctionEnd';
+type AuctionsEventTypes =
+  | 'scheduleAuctionStart'
+  | 'scheduleAuctionEnd'
+  | 'broadcastAuctionStart'
+  | 'broadcastAuctionEnd';
 
 class AuctionManager extends EventEmitter {
   public timer: TimerManager;
@@ -22,7 +26,7 @@ class AuctionManager extends EventEmitter {
   }
 
   async replayRegisteredAuctions(): Promise<this> {
-    const pendingAuctions = await auctionService._sys.listNotEndedBiddingProducts();
+    const pendingAuctions = await auctionService.listNotEndedAuctions();
 
     pendingAuctions.forEach(product => {
       const now = new Date();
@@ -30,24 +34,23 @@ class AuctionManager extends EventEmitter {
       const hasAlreadyEnded = new Date(product.auctionEndDate) <= now;
 
       if (hasAlreadyStarted && !hasAlreadyEnded) {
-        auctionService._sys.markBiddingProductAsStarted(product.id);
+        auctionService.markBiddingProductAsStarted(product.id);
         this.emit('scheduleAuctionEnd', {
-          aProductId: product.id,
+          auctionId: product.id,
           endAt: product.auctionEndDate,
         });
       } else if (!hasAlreadyStarted && !hasAlreadyEnded) {
         this.emit('scheduleAuctionStart', {
-          aProductId: product.id,
+          auctionId: product.id,
           startAt: product.auctionStartDate,
         });
 
         this.emit('scheduleAuctionEnd', {
-          aProductId: product.id,
+          auctionId: product.id,
           endAt: product.auctionEndDate,
         });
       } else if (hasAlreadyStarted && hasAlreadyEnded) {
-        auctionService._sys.markBiddingProductAsEnded(product.id);
-        // TODO: broadcast to all clients
+        auctionService.endAuctionAndChooseWinner(product.id);
       }
     });
 
@@ -60,14 +63,15 @@ const auctionsManager = new AuctionManager();
 
 auctionsManager.on(
   'scheduleAuctionStart',
-  ({ aProductId, startAt }: { aProductId: number; startAt: string }) => {
+  ({ auctionId, startAt }: { auctionId: number; startAt: string }) => {
     //
     auctionsManager.timer.setTimer(
-      `${aProductId}-start`,
+      `${auctionId}-start`,
       new Date(startAt).getTime() - Date.now(),
-      () => {
-        logger.info(`AUCTIONS: Auction ${aProductId} started`);
-        auctionService._sys.markBiddingProductAsStarted(aProductId);
+      async () => {
+        logger.info(`AUCTIONS: Auction ${auctionId} started`);
+        await auctionService.markBiddingProductAsStarted(auctionId);
+        auctionsManager.emit('broadcastAuctionStart', { auctionId });
       },
     );
   },
@@ -75,14 +79,15 @@ auctionsManager.on(
 
 auctionsManager.on(
   'scheduleAuctionEnd',
-  ({ aProductId, endAt }: { aProductId: number; endAt: string }) => {
+  ({ auctionId, endAt }: { auctionId: number; endAt: string }) => {
     //
     auctionsManager.timer.setTimer(
-      `${aProductId}-end`,
+      `${auctionId}-end`,
       new Date(endAt).getTime() - Date.now(),
       async () => {
-        logger.info(`AUCTIONS: Auction ${aProductId} ended`);
-        await auctionService._sys.markBiddingProductAsEnded(aProductId);
+        logger.info(`AUCTIONS: Auction ${auctionId} ended`);
+        await auctionService.endAuctionAndChooseWinner(auctionId);
+        auctionsManager.emit('broadcastAuctionEnd', { auctionId });
       },
     );
   },

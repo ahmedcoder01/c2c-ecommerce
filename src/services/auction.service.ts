@@ -2,18 +2,19 @@ import httpStatus from 'http-status';
 import prisma from '../../prisma/prisma-client';
 import logger from '../logger';
 import ApiError from '../utils/http-exception';
+import { mailService } from '.';
 
-export const isAuctionProductExists = async (productId: number) => {
-  const product = await prisma.auctionProduct.findFirst({
+export const isAuctionExists = async (auctionId: number) => {
+  const auction = await prisma.auction.findFirst({
     where: {
-      id: +productId,
+      id: +auctionId,
     },
 
     select: {
       id: true,
     },
   });
-  return !!product;
+  return !!auction;
 };
 
 export const bid = async ({
@@ -26,7 +27,7 @@ export const bid = async ({
   userId: number;
 }) => {
   await prisma.$transaction(async tx => {
-    const auctionProduct = await tx.auctionProduct.findFirst({
+    const auction = await tx.auction.findFirst({
       where: {
         id: +auctionId,
       },
@@ -50,21 +51,21 @@ export const bid = async ({
       },
     });
 
-    if (!auctionProduct) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Auction product not found');
+    if (!auction) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Auction not found');
     }
 
-    if (auctionProduct.auctionStatus === 'ENDED' || auctionProduct.auctionEndDate < new Date()) {
+    if (auction.auctionStatus === 'ENDED' || auction.auctionEndDate < new Date()) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Auction has ended');
-    } else if (auctionProduct.auctionStatus === 'PENDING') {
+    } else if (auction.auctionStatus === 'PENDING') {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Auction has not started yet');
     }
 
-    if (auctionProduct.auctionBids[0]?.bidPrice > bidAmount) {
+    if (auction.auctionBids[0]?.bidPrice > bidAmount) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bid amount is lower than the highest bid');
     }
 
-    if (auctionProduct.minimumBidPrice >= bidAmount) {
+    if (auction.minimumBidPrice >= bidAmount) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bid amount is lower than the minimum bid price');
     }
 
@@ -73,7 +74,7 @@ export const bid = async ({
         bidPrice: bidAmount,
         userId,
 
-        auctionProductId: +auctionId,
+        auctionId: +auctionId,
       },
       select: {
         id: true,
@@ -84,56 +85,166 @@ export const bid = async ({
   });
 };
 
-export const _sys = {
-  async listNotEndedBiddingProducts() {
-    const products = await prisma.auctionProduct.findMany({
+export async function listNotEndedAuctions() {
+  const products = await prisma.auction.findMany({
+    where: {
+      auctionStatus: {
+        in: ['PENDING', 'STARTED'],
+      },
+    },
+    select: {
+      id: true,
+      auctionStartDate: true,
+      auctionEndDate: true,
+      auctionStatus: true,
+    },
+  });
+  return products;
+}
+
+export async function markBiddingProductAsStarted(auctionId: number) {
+  try {
+    const auction = await prisma.auction.update({
       where: {
-        auctionStatus: {
-          in: ['PENDING', 'STARTED'],
+        id: +auctionId,
+      },
+      data: {
+        auctionStatus: 'STARTED',
+      },
+
+      select: undefined,
+    });
+  } catch (error) {
+    logger.error("Couldn't mark bidding as started. Could be deleted");
+  }
+}
+
+export async function endAuctionAndChooseWinner(auctionId: number) {
+  await prisma.$transaction(async tx => {
+    const auction = await tx.auction.update({
+      where: {
+        id: +auctionId,
+      },
+
+      data: {
+        auctionStatus: 'ENDED',
+
+        productVariant: {
+          update: {
+            stock: {
+              decrement: 1,
+            },
+          },
         },
+      },
+
+      select: {
+        productVariant: {
+          select: {
+            id: true,
+            product: {
+              select: {
+                name: true,
+                sellerProfile: {
+                  select: {
+                    id: true,
+                    user: {
+                      select: {
+                        email: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        auctionBids: {
+          take: 1,
+          orderBy: {
+            bidPrice: 'desc',
+          },
+          select: {
+            id: true,
+            bidPrice: true,
+            user: {
+              select: {
+                email: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const highestBid = auction.auctionBids[0];
+    if (!highestBid) {
+      await mailService.sendEmail({
+        emails: [auction.productVariant.product.sellerProfile?.user.email as string],
+        subject: 'Your auction has ended without any bids',
+        message: `Your product ${auction.productVariant.product.name} has not been sold. Please check your auction settings.`,
+      });
+      return;
+    }
+
+    await tx.auction.update({
+      where: {
+        id: highestBid.id,
+      },
+
+      data: {
+        winnerId: highestBid.user.id,
+      },
+
+      select: undefined,
+    });
+
+    const shippingAddresess = await tx.shippingAddress.findMany({
+      where: {
+        userId: highestBid.user.id,
+      },
+
+      select: {
+        id: true,
+        isDefault: true,
+      },
+    });
+
+    const chosenAddress =
+      shippingAddresess.find(address => address.isDefault) ?? shippingAddresess[0];
+
+    const order = await tx.order.create({
+      data: {
+        userId: highestBid.user.id,
+        orderItems: {
+          create: {
+            productVariantId: auction.productVariant.id,
+            quantity: 1,
+            price: highestBid.bidPrice,
+          },
+        },
+        shippingAddressId: chosenAddress.id,
       },
       select: {
         id: true,
-        auctionStartDate: true,
-        auctionEndDate: true,
-        auctionStatus: true,
       },
     });
-    return products;
-  },
 
-  async markBiddingProductAsStarted(productId: number) {
-    try {
-      const product = await prisma.auctionProduct.update({
-        where: {
-          id: +productId,
-        },
-        data: {
-          auctionStatus: 'STARTED',
-        },
+    // send email to the highest bidder and the seller
+    const userE = mailService.sendEmail({
+      emails: [highestBid.user.email],
+      subject: 'You won the auction',
+      message: `You won the auction for the product ${auction.productVariant.product.name} with the price ${highestBid.bidPrice}. Please pay for the product to get it shipped to you.`,
+    });
 
-        select: undefined,
-      });
-    } catch (error) {
-      logger.error("Couldn't mark bidding product as started. Could be deleted");
-    }
-  },
+    const sellerE = mailService.sendEmail({
+      emails: [auction.productVariant.product.sellerProfile?.user.email as string],
+      subject: 'Your product has been sold',
+      message: `Your product ${auction.productVariant.product.name} has been sold for the price ${highestBid.bidPrice}. Please ship the product to the buyer.`,
+    });
 
-  async markBiddingProductAsEnded(productId: number) {
-    try {
-      const product = await prisma.auctionProduct.update({
-        where: {
-          id: +productId,
-        },
-        data: {
-          auctionStatus: 'ENDED',
-        },
-
-        select: undefined,
-      });
-      // TODO: maybe detect the winner here?
-    } catch (error) {
-      logger.error("Couldn't mark bidding product as ended. Could be deleted");
-    }
-  },
-};
+    await Promise.all([userE, sellerE]);
+  });
+}
