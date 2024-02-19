@@ -10,8 +10,8 @@ export const createOrderFromCart = async ({
   userId,
   shippingAddressId,
 }: {
-  userId: number;
-  shippingAddressId: number;
+  userId: string;
+  shippingAddressId: string;
 }) => {
   await shippingAddressService.checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   const cartId = await cartService.getUserCartId(userId);
@@ -168,9 +168,9 @@ export const createOrderFromProductVariant = async ({
   shippingAddressId,
   quantity = 1,
 }: {
-  productVariantId: number;
-  userId: number;
-  shippingAddressId: number;
+  productVariantId: string;
+  userId: string;
+  shippingAddressId: string;
   quantity?: number;
 }) => {
   const order = await prisma.$transaction(async tx => {
@@ -254,7 +254,7 @@ export const createOrderFromProductVariant = async ({
   });
 };
 
-export const listUserOrders = async (userId: number) => {
+export const listUserOrders = async (userId: string) => {
   const orders = await prisma.order.findMany({
     where: {
       userId,
@@ -311,7 +311,7 @@ export const listUserOrders = async (userId: number) => {
 - review product
 */
 
-export const finalizeOrder = async (orderId: number, userId: number) => {
+export const finalizeOrder = async (orderId: string, userId: string) => {
   //* In a real application, this function should be called after the delivery service confirms that the package has been delivered
   /* STEPS:
   - mark order as "COMPLETED"
@@ -448,7 +448,7 @@ export const finalizeOrder = async (orderId: number, userId: number) => {
 };
 
 export const markOrderAsConfirmed = async (
-  orderId: number,
+  orderId: string,
   {
     paymentId,
   }: {
@@ -547,8 +547,8 @@ export const cancelOrder = async ({
   userId,
 }: {
   isSystemCall?: boolean;
-  orderId: number;
-  userId?: number;
+  orderId: string;
+  userId?: string;
 }) => {
   const order = await prisma.order.findUnique({
     where: {
@@ -614,8 +614,8 @@ export const cancelOrder = async ({
 };
 
 export const requestRefund = async (
-  orderItemId: number,
-  userId: number,
+  orderItemId: string,
+  userId: string,
   {
     reason,
   }: {
@@ -731,7 +731,7 @@ export const requestRefund = async (
   return refund;
 };
 
-export const listRefundRequests = async (userId: number) => {
+export const listRefundRequests = async (userId: string) => {
   const refundRequests = await prisma.refundRequest.findMany({
     where: {
       orderItem: {
@@ -779,7 +779,7 @@ export const listRefundRequests = async (userId: number) => {
   return refundRequests;
 };
 
-export const cancelRefundRequest = async (refundRequestId: number, userId: number) => {
+export const cancelRefundRequest = async (refundRequestId: string, userId: string) => {
   const refundRequest = await prisma.refundRequest.findUnique({
     where: {
       id: refundRequestId,

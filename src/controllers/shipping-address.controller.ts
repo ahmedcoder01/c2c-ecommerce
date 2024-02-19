@@ -51,7 +51,7 @@ export const listUserShippingAddresses: ExpressHandler<
 };
 
 export const getUserShippingAddress: ExpressHandlerWithParams<
-  { shippingAddressId: number },
+  { shippingAddressId: string },
   any,
   {
     shippingAddress: any;
@@ -60,7 +60,7 @@ export const getUserShippingAddress: ExpressHandlerWithParams<
   const { userId } = req;
   const { shippingAddressId } = req.params;
   const shippingAddress = await shippingAddressService.getShippingAddress(
-    +shippingAddressId,
+    shippingAddressId,
     userId,
   );
   res.status(httpStatus.OK).json({
@@ -70,7 +70,7 @@ export const getUserShippingAddress: ExpressHandlerWithParams<
 };
 
 export const updateShippingAddress: ExpressHandlerWithParams<
-  { shippingAddressId: number },
+  { shippingAddressId: string },
   Partial<Pick<ShippingAddress, 'address' | 'city' | 'country' | 'name' | 'isDefault' | 'phone'>>,
   {
     shippingAddress: any;
@@ -98,13 +98,13 @@ export const updateShippingAddress: ExpressHandlerWithParams<
 };
 
 export const deleteShippingAddress: ExpressHandlerWithParams<
-  { shippingAddressId: number },
+  { shippingAddressId: string },
   any,
   any
 > = async (req, res) => {
   const { userId } = req;
   const { shippingAddressId } = req.params;
-  await shippingAddressService.deleteShippingAddress(+shippingAddressId, userId);
+  await shippingAddressService.deleteShippingAddress(shippingAddressId, userId);
   res.status(httpStatus.OK).json({
     message: 'Shipping address deleted successfully',
   });

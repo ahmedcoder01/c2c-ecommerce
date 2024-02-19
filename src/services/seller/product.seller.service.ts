@@ -7,6 +7,7 @@ import { PrismaTransaction } from '../../types/requests.type';
 import config from '../../config';
 import logger from '../../logger';
 import auctionsManager from '../../events/Auctions.event';
+import { sellerProductService } from '..';
 
 // TODO: broken product variant duplication check
 // TODO: handle the situation of deleting a product/variant that is stored in any other tables like the cartItem, etc
@@ -32,7 +33,7 @@ export interface ProductRequestVariant {
 }
 
 export const createProduct = async (
-  sellerId: number,
+  sellerId: string,
   {
     name,
     description,
@@ -45,32 +46,47 @@ export const createProduct = async (
     category: string;
   },
 ) => {
-  const product = await prisma.product.create({
-    data: {
-      name,
-      defaultImage,
-      sellerProfile: {
-        connect: {
-          id: sellerId,
+  const _product = await prisma.$transaction(async tx => {
+    try {
+      await sellerProductService.checkCategoryExistsOrThrow(category, { tx });
+    } catch (error) {
+      //! FOR Dev env, create category if not exists
+      if (config.variables.env === 'development') {
+        await sellerProductService.createCategory(category, { tx });
+        return;
+      }
+
+      throw error;
+    }
+    const product = await tx.product.create({
+      data: {
+        name,
+        defaultImage,
+        sellerProfile: {
+          connect: {
+            id: sellerId,
+          },
+        },
+        description,
+        productCategory: {
+          connect: {
+            name: category,
+          },
         },
       },
-      description,
-      productCategory: {
-        connect: {
-          name: category,
-        },
-      },
-    },
+    });
+    return product;
   });
-  return product;
+
+  return _product;
 };
 
-export const removeProduct = async (productId: number, sellerId: number) => {
+export const removeProduct = async (productId: string, sellerId: string) => {
   // TODO: what if there are orders linked to this product?
 
   await prisma.product.delete({
     where: {
-      id: +productId,
+      id: productId,
 
       sellerProfile: {
         id: sellerId,
@@ -80,14 +96,14 @@ export const removeProduct = async (productId: number, sellerId: number) => {
 };
 
 export const getProduct = async (
-  productId: number,
+  productId: string,
   options?: {
     includeVariants?: boolean;
   },
 ) => {
   const product = await prisma.product.findFirst({
     where: {
-      id: +productId,
+      id: productId,
     },
     select: {
       id: true,
@@ -120,10 +136,10 @@ export const getProduct = async (
   return product;
 };
 
-export const getSellerProducts = async (sellerId: number) => {
+export const getSellerProducts = async (sellerId: string) => {
   const products = await prisma.product.findMany({
     where: {
-      sellerProfileId: +sellerId,
+      sellerProfileId: sellerId,
     },
     select: {
       id: true,
@@ -142,10 +158,10 @@ export const getSellerProducts = async (sellerId: number) => {
   return products;
 };
 
-export const getProductVariants = async (productId: number) => {
+export const getProductVariants = async (productId: string) => {
   const productVariants = await prisma.productVariant.findMany({
     where: {
-      productId: +productId,
+      productId: productId,
     },
     select: {
       id: true,
@@ -170,12 +186,12 @@ export const getProductVariants = async (productId: number) => {
   return productVariants;
 };
 
-export const removeProductVariant = async (variantId: number, sellerId: number) => {
+export const removeProductVariant = async (variantId: string, sellerId: string) => {
   // TODO: what if there are orders linked to this product variant?
 
   await prisma.productVariant.delete({
     where: {
-      id: +variantId,
+      id: variantId,
       product: {
         sellerProfile: {
           id: sellerId,
@@ -185,12 +201,12 @@ export const removeProductVariant = async (variantId: number, sellerId: number) 
   });
 };
 
-export const getProductVariationOptions = async (productId: number) => {
+export const getProductVariationOptions = async (productId: string) => {
   const productVariantOptions = await prisma.variationOption.findMany({
     where: {
       productVariants: {
         some: {
-          productId: +productId,
+          productId: productId,
         },
       },
     },
@@ -217,10 +233,10 @@ export const getProductVariationOptions = async (productId: number) => {
 };
 
 export const checkProductVariantIsUniqueOrThrow = async (
-  productId: number,
+  productId: string,
   variantKeysAndValues: {
-    key: number;
-    value: number;
+    key: string;
+    value: any;
   }[],
   options?: {
     tx: PrismaTransaction;
@@ -229,7 +245,7 @@ export const checkProductVariantIsUniqueOrThrow = async (
   const _p = options?.tx || prisma;
   const existingVariants = await _p.productVariant.findMany({
     where: {
-      productId: +productId,
+      productId: productId,
     },
     select: {
       variationOptions: {
@@ -263,10 +279,10 @@ export const checkProductVariantIsUniqueOrThrow = async (
   }
 };
 
-export const checkProductVariantExistsOrThrow = async (variantId: number) => {
+export const checkProductVariantExistsOrThrow = async (variantId: string) => {
   const variant = await prisma.productVariant.findFirst({
     where: {
-      id: +variantId,
+      id: variantId,
     },
   });
   if (!variant) {
@@ -275,13 +291,13 @@ export const checkProductVariantExistsOrThrow = async (variantId: number) => {
 };
 
 export const createProductVariant = async (
-  productId: number,
+  productId: string,
   variantInfo: ProductRequestVariant,
 ) => {
   const variant = await prisma.$transaction(async tx => {
     const product = await tx.product.findFirst({
       where: {
-        id: +productId,
+        id: productId,
       },
       select: {
         productCategory: {
@@ -411,10 +427,10 @@ export const createProductVariant = async (
   return variant;
 };
 
-export const getProductVariantById = async (variantId: number) => {
+export const getProductVariantById = async (variantId: string) => {
   const variant = await prisma.productVariant.findFirst({
     where: {
-      id: +variantId,
+      id: variantId,
     },
     select: {
       id: true,
@@ -480,10 +496,10 @@ export const createCategory = async (
   return category;
 };
 
-export const checkProductExistsOrThrow = async (productId: number) => {
+export const checkProductExistsOrThrow = async (productId: string) => {
   const product = await prisma.product.findFirst({
     where: {
-      id: +productId,
+      id: productId,
     },
 
     select: {
@@ -497,7 +513,7 @@ export const checkProductExistsOrThrow = async (productId: number) => {
 };
 
 export const updateProduct = async (
-  productId: number,
+  productId: string,
   {
     name,
     description,
@@ -515,7 +531,7 @@ export const updateProduct = async (
   // if varia
   const product = await prisma.product.update({
     where: {
-      id: +productId,
+      id: productId,
     },
     data: {
       name,
@@ -547,14 +563,14 @@ export const updateProduct = async (
 };
 
 export const updateProductVariant = async (
-  variantId: number,
-  productId: number,
+  variantId: string,
+  productId: string,
   variantInfo: Partial<Pick<ProductRequestVariant, 'name' | 'price' | 'stock' | 'imageUrl'>>,
 ) => {
   const productVariant = await prisma.productVariant.update({
     where: {
-      id: +variantId,
-      productId: +productId,
+      id: variantId,
+      productId: productId,
     },
     data: {
       name: variantInfo.name,

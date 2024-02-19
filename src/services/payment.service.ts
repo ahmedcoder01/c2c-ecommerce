@@ -6,14 +6,14 @@ import prisma from '../../prisma/prisma-client';
 import { stripe } from '../lib/payments';
 
 interface OrderDetails {
-  id: number;
+  id: string;
   orderItems: {
-    id: number;
+    id: string;
     price: number;
     quantity: number;
 
     productVariant: {
-      id: number;
+      id: string;
       name: string;
       description: string | null;
       productVariantImage: string | null;

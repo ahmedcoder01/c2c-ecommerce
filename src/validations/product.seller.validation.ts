@@ -38,7 +38,7 @@ export const createProductVariants = {
 };
 export const createProductVariant = {
   params: Joi.object().keys({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
   body: Joi.object().keys({
     name: Joi.string().required(),
@@ -81,7 +81,7 @@ export const variationOptions = Joi.array()
 
 export const getProduct = {
   params: Joi.object({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
   query: Joi.object({
     includeVariants: Joi.boolean().default(false).optional(),
@@ -90,20 +90,20 @@ export const getProduct = {
 
 export const productGet = {
   params: Joi.object({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
 };
 
 export const variantGet = {
   params: Joi.object({
-    productId: Joi.number().required(),
-    variantId: Joi.number().required(),
+    productId: Joi.string().required(),
+    variantId: Joi.string().required(),
   }),
 };
 
 export const updateProduct = {
   params: Joi.object({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
   body: Joi.object({
     name: Joi.string().optional(),
@@ -120,8 +120,8 @@ export const updateProduct = {
 
 export const updateProductVariant = {
   params: Joi.object({
-    productId: Joi.number().required(),
-    variantId: Joi.number().required(),
+    productId: Joi.string().required(),
+    variantId: Joi.string().required(),
   }),
   body: Joi.object({
     name: Joi.string().optional(),
@@ -149,12 +149,12 @@ export const createBiddingProduct = {
 
 export const getBiddingProduct = {
   params: Joi.object({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
 };
 
 export const deleteBiddingProduct = {
   params: Joi.object({
-    productId: Joi.number().required(),
+    productId: Joi.string().required(),
   }),
 };

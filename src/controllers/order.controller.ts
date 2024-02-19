@@ -5,7 +5,7 @@ import { ExpressHandler, ExpressHandlerWithParams } from '../types';
 import HttpException from '../utils/http-exception';
 
 export const createOrderFromCart: ExpressHandler<
-  { shippingAddressId: number },
+  { shippingAddressId: string },
   {
     session: any;
     order: any;
@@ -48,12 +48,12 @@ export const listUserOrders: ExpressHandler<
 
 //* TEMP until using webhooks
 
-export const completeOrderAfterDelivery: ExpressHandlerWithParams<{ orderId: number }, {}, {}> =
+export const completeOrderAfterDelivery: ExpressHandlerWithParams<{ orderId: string }, {}, {}> =
   async (req, res) => {
     const { orderId } = req.params;
     const { userId } = req;
 
-    await orderService.finalizeOrder(+orderId, userId);
+    await orderService.finalizeOrder(orderId, userId);
 
     res.status(httpStatus.OK).json({
       message: 'Order completed',

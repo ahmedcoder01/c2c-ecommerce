@@ -1,7 +1,7 @@
 // SELLER SPECIFIC
 import prisma from '../../../prisma/prisma-client';
 
-export const listSellerOrders = async (sellerId: number, active?: boolean) => {
+export const listSellerOrders = async (sellerId: string, active?: boolean) => {
   const ordersItems = await prisma.orderItem.findMany({
     where: {
       productVariant: {
@@ -65,7 +65,7 @@ export const listSellerOrders = async (sellerId: number, active?: boolean) => {
   return ordersItems;
 };
 
-export const listSellerRefundRequests = async (sellerId: number) => {
+export const listSellerRefundRequests = async (sellerId: string) => {
   const refundRequests = await prisma.refundRequest.findMany({
     where: {
       orderItem: {
@@ -91,7 +91,7 @@ export const listSellerRefundRequests = async (sellerId: number) => {
   return refundRequests;
 };
 
-export const approveRefundRequest = async (refundRequestId: number) => {
+export const approveRefundRequest = async (refundRequestId: string) => {
   const refundRequest = await prisma.refundRequest.update({
     where: {
       id: refundRequestId,
@@ -105,7 +105,7 @@ export const approveRefundRequest = async (refundRequestId: number) => {
   });
 };
 
-export const rejectRefundRequest = async (refundRequestId: number) => {
+export const rejectRefundRequest = async (refundRequestId: string) => {
   const refundRequest = await prisma.refundRequest.update({
     where: {
       id: refundRequestId,

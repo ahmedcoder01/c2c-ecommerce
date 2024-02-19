@@ -9,7 +9,7 @@ generator client {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email         String         @unique
   name          String?
   password      String
@@ -35,9 +35,9 @@ model User {
 }
 
 model SellerProfile {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int      @unique
+  userId      String   @unique @db.Uuid
   name        String
   phone       String
   isActivated Boolean  @default(false)
@@ -51,7 +51,7 @@ model SellerProfile {
 }
 
 model SellerBalance {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   balance   Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,11 +60,11 @@ model SellerBalance {
 
   // seller profile relation
   sellerProfile   SellerProfile @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
-  sellerProfileId Int           @unique
+  sellerProfileId String        @unique @db.Uuid
 }
 
 model SellerBalanceLog {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   amount    Float
   message   String?
   createdAt DateTime @default(now())
@@ -72,17 +72,17 @@ model SellerBalanceLog {
 
   // seller balance relation
   sellerBalance   SellerBalance @relation(fields: [sellerBalanceId], references: [id], onDelete: Cascade)
-  sellerBalanceId Int
+  sellerBalanceId String        @unique @db.Uuid
 
   // order relation
-  order   Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId Int?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String? @unique @db.Uuid
 }
 
 model ShippingAddress {
-  id      Int     @id @default(autoincrement())
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  Int
+  userId  String  @unique @db.Uuid
   name    String?
   phone   String?
   address String?
@@ -99,7 +99,7 @@ model ShippingAddress {
 
 // Products with variants and categories
 model ProductCategory {
-  id          Int         @id @default(autoincrement())
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String      @unique
   description String?
   createdAt   DateTime    @default(now())
@@ -109,12 +109,12 @@ model ProductCategory {
 
   subCategories    ProductCategory[] @relation("SubCategory")
   parentCategory   ProductCategory?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
-  parentCategoryId Int?
+  parentCategoryId String?           @db.Uuid
 }
 
 //* entity attribute value model
 model Product {
-  id                Int              @id @default(autoincrement())
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String
   description       String?
   defaultImage      String?
@@ -122,9 +122,9 @@ model Product {
   updatedAt         DateTime         @updatedAt
   productVariants   ProductVariant[]
   productCategory   ProductCategory  @relation(fields: [productCategoryId], references: [id])
-  productCategoryId Int
-  sellerProfile     SellerProfile?   @relation(fields: [sellerProfileId], references: [id], onDelete: SetNull)
-  sellerProfileId   Int?
+  productCategoryId String           @db.Uuid
+  sellerProfile     SellerProfile?   @relation(fields: [sellerProfileId], references: [id], onDelete: NoAction)
+  sellerProfileId   String           @db.Uuid
 
   productReviews ProductReview[]
 }
@@ -136,29 +136,29 @@ enum AuctionStatus {
 }
 
 model Auction {
-  id               Int      @id @default(autoincrement())
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   minimumBidPrice  Float
   auctionStartDate DateTime
   auctionEndDate   DateTime
 
-  productVariantId Int            @unique
+  productVariantId String         @unique @db.Uuid
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
 
   auctionStatus AuctionStatus @default(PENDING)
   auctionBids   AuctionBid[]
 
-  winner   User? @relation(fields: [winnerId], references: [id])
-  winnerId Int?
+  winner   User?   @relation(fields: [winnerId], references: [id])
+  winnerId String? @unique @db.Uuid
 }
 
 model AuctionBid {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   auction   Auction  @relation(fields: [auctionId], references: [id])
-  auctionId Int
+  auctionId String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String   @db.Uuid
   bidPrice  Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -167,14 +167,14 @@ model AuctionBid {
 }
 
 model ProductVariant {
-  id                  Int     @id @default(autoincrement())
+  id                  String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                String
   description         String?
   price               Float
   stock               Int
   productVariantImage String?
   product             Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId           Int
+  productId           String  @db.Uuid
 
   hasAuctionOption Boolean  @default(false)
   auction          Auction?
@@ -193,17 +193,17 @@ model ProductVariant {
 
 // Variations and options
 model Variation {
-  id                Int               @id @default(autoincrement())
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name              String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   productCategory   ProductCategory?  @relation(fields: [productCategoryId], references: [id], onDelete: SetNull)
-  productCategoryId Int?
+  productCategoryId String?           @db.Uuid
   variationOptions  VariationOption[]
 }
 
 model VariationOption {
-  id              Int              @id @default(autoincrement())
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   value           String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -214,20 +214,20 @@ model VariationOption {
 
 // Cart and orders
 model Cart {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int        @unique
+  userId    String     @unique @db.Uuid
   cartItems CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
 
 model CartItem {
-  id               Int            @id @default(autoincrement())
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  cartId           Int
+  cartId           String         @db.Uuid
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  productVariantId Int
+  productVariantId String         @db.Uuid
   quantity         Int
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -244,32 +244,32 @@ enum OrderStatus {
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user       User        @relation(fields: [userId], references: [id])
-  userId     Int
+  userId     String      @db.Uuid
   orderItems OrderItem[]
 
   status      OrderStatus @default(PENDING)
   deliveredAt DateTime?
 
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: NoAction)
-  shippingAddressId Int
+  shippingAddressId String          @unique @db.Uuid
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
   paymentDetails   PaymentDetails? @relation(fields: [paymentDetailsId], references: [id], onDelete: SetNull)
-  paymentDetailsId Int?            @unique
+  paymentDetailsId String?         @unique @db.Uuid
 
   // seller balance
   sellerBalanceLogs SellerBalanceLog[]
 }
 
 model OrderItem {
-  id               Int            @id @default(autoincrement())
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId          Int
+  orderId          String         @db.Uuid
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  productVariantId Int
+  productVariantId String         @db.Uuid
   quantity         Int
   price            Float
   createdAt        DateTime       @default(now())
@@ -287,9 +287,9 @@ model OrderItem {
 //   CANCELLED
 // }
 model RefundRequest {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  orderItemId Int       @unique
+  orderItemId String    @unique @db.Uuid
 
   reason    String
   createdAt DateTime @default(now())
@@ -299,7 +299,7 @@ model RefundRequest {
 }
 
 model PaymentDetails {
-  id                Int      @id @default(autoincrement())
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   paymentMethod     String?
   processorProvider String   @default("STRIPE")
   paymentId         String
@@ -313,11 +313,11 @@ model PaymentDetails {
 // Review and rating
 
 model ProductReview {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction)
-  userId    Int
+  userId    String   @db.Uuid
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId Int
+  productId String   @db.Uuid
   rating    Int
   review    String?
   createdAt DateTime @default(now())

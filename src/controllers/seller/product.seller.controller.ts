@@ -22,18 +22,6 @@ export const createProduct: ExpressHandler<
   const { sellerId } = req;
   const { name, description, category, defaultImage } = req.body;
 
-  try {
-    await sellerProductService.checkCategoryExistsOrThrow(category);
-  } catch (error) {
-    //! FOR Dev env, create category if not exists
-    if (config.variables.env === 'development') {
-      await sellerProductService.createCategory(category);
-      return;
-    }
-
-    throw error;
-  }
-
   const product = await sellerProductService.createProduct(sellerId, {
     category,
     defaultImage,
@@ -62,7 +50,7 @@ export const getSellerProducts: ExpressHandler<
 };
 
 export const createProductVariant: ExpressHandlerWithParams<
-  { productId: number },
+  { productId: string },
   ProductRequestVariant,
   {
     productVariant: any;
@@ -82,7 +70,7 @@ export const createProductVariant: ExpressHandlerWithParams<
 };
 
 export const getProduct: ExpressHandlerWithParams<
-  { productId: number },
+  { productId: string },
   any,
   {
     product: Product & {
@@ -107,7 +95,7 @@ export const getProduct: ExpressHandlerWithParams<
 };
 
 export const getProductVariationOptions: ExpressHandlerWithParams<
-  { productId: number },
+  { productId: string },
   any,
   {
     options: any;
@@ -123,7 +111,7 @@ export const getProductVariationOptions: ExpressHandlerWithParams<
 };
 
 export const getProductVariant: ExpressHandlerWithParams<
-  { productId: number; variantId: number },
+  { productId: string; variantId: string },
   any,
   {
     productVariant: any;
@@ -142,7 +130,7 @@ export const getProductVariant: ExpressHandlerWithParams<
   });
 };
 
-export const deleteProduct: ExpressHandlerWithParams<{ productId: number }, {}, {}> = async (
+export const deleteProduct: ExpressHandlerWithParams<{ productId: string }, {}, {}> = async (
   req,
   res,
 ) => {
@@ -156,7 +144,7 @@ export const deleteProduct: ExpressHandlerWithParams<{ productId: number }, {}, 
   });
 };
 
-export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: number }, {}, {}> = async (
+export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: string }, {}, {}> = async (
   req,
   res,
 ) => {
@@ -171,7 +159,7 @@ export const deleteProductVariant: ExpressHandlerWithParams<{ variantId: number 
 };
 
 export const updateProduct: ExpressHandlerWithParams<
-  { productId: number },
+  { productId: string },
   {
     name: string;
     description: string;
@@ -205,7 +193,7 @@ export const updateProduct: ExpressHandlerWithParams<
 };
 
 export const updateProductVariant: ExpressHandlerWithParams<
-  { variantId: number; productId: number },
+  { variantId: string; productId: string },
   ProductRequestVariant,
   {
     productVariant: any;

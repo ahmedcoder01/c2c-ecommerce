@@ -5,9 +5,9 @@ import { sellerProductService } from '.';
 import prisma from '../../prisma/prisma-client';
 
 export const addProductToCart = async (
-  productVariantId: number,
+  productVariantId: string,
   quantity: number,
-  cartId: number,
+  cartId: string,
 ) => {
   const productVariant = await sellerProductService.getProductVariantById(productVariantId);
 
@@ -62,7 +62,7 @@ export const addProductToCart = async (
   });
 };
 
-export const removeProductFromCart = async (cartItemId: number) => {
+export const removeProductFromCart = async (cartItemId: string) => {
   const cartItem = await prisma.cartItem.findUnique({
     where: {
       id: cartItemId,
@@ -99,7 +99,7 @@ export const removeProductFromCart = async (cartItemId: number) => {
   return null;
 };
 
-export const getCartDetails = async (cartId: number) => {
+export const getCartDetails = async (cartId: string) => {
   let cartItems = await prisma.cartItem.findMany({
     where: {
       cart: {
@@ -166,7 +166,7 @@ export const getCartDetails = async (cartId: number) => {
   };
 };
 
-export const getCartItemsCount = async (cartId: number) => {
+export const getCartItemsCount = async (cartId: string) => {
   const cartItems = await prisma.cartItem.findMany({
     where: {
       cartId,
@@ -184,7 +184,7 @@ export const getCartItemsCount = async (cartId: number) => {
   return total;
 };
 
-export const clearCart = async (cartId: number) => {
+export const clearCart = async (cartId: string) => {
   await prisma.cartItem.deleteMany({
     where: {
       cartId,
@@ -192,7 +192,7 @@ export const clearCart = async (cartId: number) => {
   });
 };
 
-export const getUserCartId = async (userId: number) => {
+export const getUserCartId = async (userId: string) => {
   const cart = await prisma.cart.findFirst({
     where: {
       userId,

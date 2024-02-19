@@ -49,7 +49,7 @@ export const stripeWebhooks: ExpressHandlerWithParams<
 
   switch (event.type) {
     case 'checkout.session.completed':
-      orderService.markOrderAsConfirmed(+event.data.object.metadata.orderId, {
+      orderService.markOrderAsConfirmed(event.data.object.metadata.orderId, {
         paymentId: event.data.object.id,
       });
       break;
@@ -57,7 +57,7 @@ export const stripeWebhooks: ExpressHandlerWithParams<
     case 'checkout.session.async_payment_failed':
       orderService.cancelOrder({
         isSystemCall: true,
-        orderId: +event.data.object.metadata.orderId,
+        orderId: event.data.object.metadata.orderId,
       });
       break;
     default:

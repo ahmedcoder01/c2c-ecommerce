@@ -13,7 +13,7 @@ export const createShippingAddress = {
 
 export const updateShippingAddress = {
   params: Joi.object().keys({
-    shippingAddressId: Joi.number().required(),
+    shippingAddressId: Joi.string().required(),
   }),
   body: Joi.object().keys({
     address: Joi.string().required(),
@@ -27,6 +27,6 @@ export const updateShippingAddress = {
 
 export const deleteShippingAddress = {
   params: Joi.object().keys({
-    shippingAddressId: Joi.number().required(),
+    shippingAddressId: Joi.string().required(),
   }),
 };

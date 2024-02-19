@@ -53,7 +53,7 @@ export const checkEmailUniqueness = async (email: string) => {
   }
 };
 
-export const checkUserExistsByIdOrThrow = async (uid: number) => {
+export const checkUserExistsByIdOrThrow = async (uid: string) => {
   const user = await prisma.user.findUnique({
     where: {
       id: uid,

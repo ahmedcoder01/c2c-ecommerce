@@ -4,10 +4,10 @@ import logger from '../logger';
 import ApiError from '../utils/http-exception';
 import { mailService } from '.';
 
-export const isAuctionExists = async (auctionId: number) => {
+export const isAuctionExists = async (auctionId: string) => {
   const auction = await prisma.auction.findFirst({
     where: {
-      id: +auctionId,
+      id: auctionId,
     },
 
     select: {
@@ -17,19 +17,68 @@ export const isAuctionExists = async (auctionId: number) => {
   return !!auction;
 };
 
+export const getAuction = async (auctionId: string) => {
+  const auction = await prisma.auction.findFirst({
+    where: {
+      id: auctionId,
+    },
+    select: {
+      id: true,
+      auctionStatus: true,
+      auctionStartDate: true,
+      auctionEndDate: true,
+      minimumBidPrice: true,
+      productVariant: {
+        select: {
+          id: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+              sellerProfile: {
+                select: {
+                  id: true,
+                  user: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      auctionBids: {
+        select: {
+          id: true,
+          bidPrice: true,
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return auction;
+};
+
 export const bid = async ({
   auctionId,
   bidAmount,
   userId,
 }: {
-  auctionId: number;
+  auctionId: string;
   bidAmount: number;
-  userId: number;
+  userId: string;
 }) => {
   await prisma.$transaction(async tx => {
     const auction = await tx.auction.findFirst({
       where: {
-        id: +auctionId,
+        id: auctionId,
       },
       select: {
         id: true,
@@ -61,11 +110,14 @@ export const bid = async ({
       throw new ApiError(httpStatus.BAD_REQUEST, 'Auction has not started yet');
     }
 
-    if (auction.auctionBids[0]?.bidPrice > bidAmount) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Bid amount is lower than the highest bid');
+    if (auction.auctionBids[0]?.bidPrice >= bidAmount) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Bid amount is lower than or equal the highest bid',
+      );
     }
 
-    if (auction.minimumBidPrice >= bidAmount) {
+    if (auction.minimumBidPrice > bidAmount) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bid amount is lower than the minimum bid price');
     }
 
@@ -74,7 +126,7 @@ export const bid = async ({
         bidPrice: bidAmount,
         userId,
 
-        auctionId: +auctionId,
+        auctionId: auctionId,
       },
       select: {
         id: true,
@@ -86,7 +138,7 @@ export const bid = async ({
 };
 
 export async function listNotEndedAuctions() {
-  const products = await prisma.auction.findMany({
+  const auctions = await prisma.auction.findMany({
     where: {
       auctionStatus: {
         in: ['PENDING', 'STARTED'],
@@ -99,14 +151,14 @@ export async function listNotEndedAuctions() {
       auctionStatus: true,
     },
   });
-  return products;
+  return auctions;
 }
 
-export async function markBiddingProductAsStarted(auctionId: number) {
+export async function markBiddingProductAsStarted(auctionId: string) {
   try {
     const auction = await prisma.auction.update({
       where: {
-        id: +auctionId,
+        id: auctionId,
       },
       data: {
         auctionStatus: 'STARTED',
@@ -119,11 +171,11 @@ export async function markBiddingProductAsStarted(auctionId: number) {
   }
 }
 
-export async function endAuctionAndChooseWinner(auctionId: number) {
-  await prisma.$transaction(async tx => {
+export async function endAuctionAndChooseWinner(auctionId: string) {
+  const tx = await prisma.$transaction(async tx => {
     const auction = await tx.auction.update({
       where: {
-        id: +auctionId,
+        id: auctionId,
       },
 
       data: {
@@ -132,7 +184,7 @@ export async function endAuctionAndChooseWinner(auctionId: number) {
         productVariant: {
           update: {
             stock: {
-              decrement: 1,
+              decrement: 1, // TODO: DECREMENT STOCK ON AUCTION START AND NOT ON END
             },
           },
         },
@@ -186,12 +238,12 @@ export async function endAuctionAndChooseWinner(auctionId: number) {
         subject: 'Your auction has ended without any bids',
         message: `Your product ${auction.productVariant.product.name} has not been sold. Please check your auction settings.`,
       });
-      return;
+      return { winner: null };
     }
 
     await tx.auction.update({
       where: {
-        id: highestBid.id,
+        id: auctionId,
       },
 
       data: {
@@ -201,50 +253,27 @@ export async function endAuctionAndChooseWinner(auctionId: number) {
       select: undefined,
     });
 
-    const shippingAddresess = await tx.shippingAddress.findMany({
-      where: {
-        userId: highestBid.user.id,
-      },
-
-      select: {
-        id: true,
-        isDefault: true,
-      },
-    });
-
-    const chosenAddress =
-      shippingAddresess.find(address => address.isDefault) ?? shippingAddresess[0];
-
-    const order = await tx.order.create({
-      data: {
-        userId: highestBid.user.id,
-        orderItems: {
-          create: {
-            productVariantId: auction.productVariant.id,
-            quantity: 1,
-            price: highestBid.bidPrice,
-          },
-        },
-        shippingAddressId: chosenAddress.id,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    // send email to the highest bidder and the seller
+    // send email to the highest bidder to start the payment process
     const userE = mailService.sendEmail({
       emails: [highestBid.user.email],
       subject: 'You won the auction',
-      message: `You won the auction for the product ${auction.productVariant.product.name} with the price ${highestBid.bidPrice}. Please pay for the product to get it shipped to you.`,
+      message: `You won the auction for the product ${auction.productVariant.product.name} with the price ${highestBid.bidPrice}. Please folow
+      the below link to start the payment process. \n\n Payment link: http://localhost:3000/auction-payment/${auctionId} \n\n
+      Please note that if you do not pay within 24 hours, you will be banned from bidding in the future auctions.
+      `,
     });
 
     const sellerE = mailService.sendEmail({
       emails: [auction.productVariant.product.sellerProfile?.user.email as string],
-      subject: 'Your product has been sold',
-      message: `Your product ${auction.productVariant.product.name} has been sold for the price ${highestBid.bidPrice}. Please ship the product to the buyer.`,
+      subject: `Your product ${auction.productVariant.product.name} auction has ended`,
+      message: `Your product ${auction.productVariant.product.name} auction has ended and  ${highestBid.user.email} had the highest bid with the price ${highestBid.bidPrice}. Please check your email for the buyer's contact information.
+      We will notify you once the payment is done.`,
     });
 
     await Promise.all([userE, sellerE]);
+
+    return { winner: highestBid.user };
   });
+
+  return tx;
 }

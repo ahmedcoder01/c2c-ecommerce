@@ -19,7 +19,7 @@ export const getCartByUserId: ExpressHandler<
 };
 
 export const addProductToCart: ExpressHandler<
-  { productVariantId: number; quantity?: number },
+  { productVariantId: string; quantity?: number },
   {
     cartItem: any;
   }
@@ -36,13 +36,13 @@ export const addProductToCart: ExpressHandler<
   });
 };
 
-export const removeProductFromCart: ExpressHandler<{ cartItemId: number }, {}> = async (
+export const removeProductFromCart: ExpressHandler<{ cartItemId: string }, {}> = async (
   req,
   res,
 ) => {
   const { cartItemId } = req.params;
 
-  await cartService.removeProductFromCart(+cartItemId);
+  await cartService.removeProductFromCart(cartItemId);
 
   return res.status(httpStatus.OK).json({
     message: 'Cart item removed successfully',

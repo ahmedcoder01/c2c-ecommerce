@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 import prisma from '../../../prisma/prisma-client';
 import HttpException from '../../utils/http-exception';
 
-export const checkExistsOrThrow = async (uid: number) => {
+export const checkExistsOrThrow = async (uid: string) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
     where: {
       userId: uid,
@@ -15,7 +15,7 @@ export const checkExistsOrThrow = async (uid: number) => {
   }
 };
 
-export const getOrThrow = async (uid: number) => {
+export const getOrThrow = async (uid: string) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
     where: {
       userId: uid,
@@ -36,7 +36,7 @@ export const getOrThrow = async (uid: number) => {
 };
 
 export const register = async (
-  uid: number,
+  uid: string,
   { name, phone }: Pick<SellerProfile, 'name' | 'phone'>,
 ) => {
   const existingProfile = await prisma.sellerProfile.findUnique({
@@ -70,7 +70,7 @@ export const register = async (
   return seller;
 };
 
-export const getProfile = async (uid: number) => {
+export const getProfile = async (uid: string) => {
   const profile = await prisma.sellerProfile.findUnique({
     where: {
       userId: uid,
@@ -80,7 +80,7 @@ export const getProfile = async (uid: number) => {
   return profile;
 };
 
-export const getById = async (sellerId: number) => {
+export const getById = async (sellerId: string) => {
   const profile = await prisma.sellerProfile.findUnique({
     where: {
       id: sellerId,
@@ -90,7 +90,7 @@ export const getById = async (sellerId: number) => {
   return profile;
 };
 
-export const deleteProfile = async (uid: number) => {
+export const deleteProfile = async (uid: string) => {
   await prisma.sellerProfile.delete({
     where: {
       userId: uid,
@@ -99,7 +99,7 @@ export const deleteProfile = async (uid: number) => {
 };
 
 export const getBalance = async (
-  sellerId: number,
+  sellerId: string,
   {
     includeLogs = true,
   }: {

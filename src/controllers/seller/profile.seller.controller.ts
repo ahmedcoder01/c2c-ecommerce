@@ -23,9 +23,9 @@ export const getProfile: ExpressHandler<unknown, SellerProfile> = async (req, re
   res.json(profile!);
 };
 
-export const getSellerById: ExpressHandlerWithParams<{ sellerId: number }, {}, SellerProfile> =
+export const getSellerById: ExpressHandlerWithParams<{ sellerId: string }, {}, SellerProfile> =
   async (req, res) => {
-    const profile = await sellerService.getById(+req.params.sellerId);
+    const profile = await sellerService.getById(req.params.sellerId);
 
     if (!profile) {
       throw new HttpException(httpStatus.NOT_FOUND, 'Seller not found');

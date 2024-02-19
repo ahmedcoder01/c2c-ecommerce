@@ -2,8 +2,8 @@ import { ShippingAddress } from '@prisma/client';
 import prisma from '../../prisma/prisma-client';
 
 export const checkShippingAddressExistsOrThrow = async (
-  shippingAddressId: number,
-  userId: number,
+  shippingAddressId: string,
+  userId: string,
 ) => {
   const shippingAddress = await prisma.shippingAddress.findUnique({
     where: {
@@ -18,7 +18,7 @@ export const checkShippingAddressExistsOrThrow = async (
 };
 
 export const addShippingAddress = async (
-  userId: number,
+  userId: string,
   shippingAddress: Pick<
     ShippingAddress,
     'address' | 'city' | 'country' | 'name' | 'isDefault' | 'phone'
@@ -50,7 +50,7 @@ export const addShippingAddress = async (
   });
 };
 
-export const listShippingAddressess = async (userId: number) => {
+export const listShippingAddressess = async (userId: string) => {
   return prisma.shippingAddress.findMany({
     where: {
       userId,
@@ -58,7 +58,7 @@ export const listShippingAddressess = async (userId: number) => {
   });
 };
 
-export const getShippingAddress = async (shippingAddressId: number, userId: number) => {
+export const getShippingAddress = async (shippingAddressId: string, userId: string) => {
   await checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   return prisma.shippingAddress.findUnique({
     where: {
@@ -69,8 +69,8 @@ export const getShippingAddress = async (shippingAddressId: number, userId: numb
 };
 
 export const updateShippingAddress = async (
-  shippingAddressId: number,
-  userId: number,
+  shippingAddressId: string,
+  userId: string,
   shippingAddress: Partial<
     Pick<ShippingAddress, 'address' | 'city' | 'country' | 'name' | 'isDefault' | 'phone'>
   >,
@@ -113,7 +113,7 @@ export const updateShippingAddress = async (
   });
 };
 
-export const deleteShippingAddress = async (shippingAddressId: number, userId: number) => {
+export const deleteShippingAddress = async (shippingAddressId: string, userId: string) => {
   await checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   return prisma.shippingAddress.delete({
     where: {
@@ -123,7 +123,7 @@ export const deleteShippingAddress = async (shippingAddressId: number, userId: n
   });
 };
 
-export const setDefaultShippingAddress = async (shippingAddressId: number, userId: number) => {
+export const setDefaultShippingAddress = async (shippingAddressId: string, userId: string) => {
   await checkShippingAddressExistsOrThrow(shippingAddressId, userId);
   await prisma.shippingAddress.updateMany({
     where: {
